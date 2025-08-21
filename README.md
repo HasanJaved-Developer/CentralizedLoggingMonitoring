@@ -16,7 +16,7 @@ This project is designed to serve as a foundation for collecting, storing, and m
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 
 ```bash
 
