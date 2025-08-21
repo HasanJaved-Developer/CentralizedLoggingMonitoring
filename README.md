@@ -93,6 +93,9 @@ Optionally generate client SDK with NSwag.
 
 ## 📬 Sample API Requests
 Create Application
+
+```bash
+
 http POST /api/Applications
 Content-Type: application/json
 
@@ -114,6 +117,8 @@ Content-Type: application/json
   "requestId": "req-456"
 }
 
+```
+
 ---
 
 ## 🤝 Contributing
@@ -125,10 +130,14 @@ Main branch will always contain the latest stable version.
 
 ## 📂 Repository Roadmap
 
+```bash
+
 phase-1-core-api → Completed Phase 1.
 phase-2-logging → Planned logging integration.
 phase-3-swagger → Planned API documentation.
 main → Always up to date with the latest stable phase.
+
+```
 
 ---
 
