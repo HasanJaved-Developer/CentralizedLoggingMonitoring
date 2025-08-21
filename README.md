@@ -16,12 +16,22 @@ This project is designed to serve as a foundation for collecting, storing, and m
 
 ---
 
-## 📂 Project Structure
+## Project Structure
+
+
 
 CentralizedLoggingMonitoring/
-│-- CentralizedLoggingApi/ # API source code
-│-- docker-compose.yml # Docker setup for API + SQL Server
-│-- README.md # Project documentation
+├── CentralizedLoggingApi/ # Core API project
+│ ├── Controllers/ # API controllers
+│ ├── Models/ # EF Core models
+│ ├── Data/ # DbContext
+│ ├── Program.cs
+│ ├── Startup.cs (if any)
+│ └── appsettings.json
+├── docker-compose.yml # Docker Compose setup
+├── README.md # Documentation
+└── .gitignore
+
 
 ---
 
