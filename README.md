@@ -77,18 +77,16 @@ By default, it uses Development environment with appsettings.Development.json.
 ---
 
 ## 📌 Future Enhancements
-Phase 2 – Logging Integration
-Add Serilog (file + SQL Server sink).
 
-Middleware for capturing unhandled exceptions.
+- **Phase 2 – Logging Integration**
+  - Add Serilog (file + SQL Server sink).
+  - Middleware for capturing unhandled exceptions.
+  - Structured JSON logging support.
 
-Structured JSON logging support.
-
-Phase 3 – API Documentation
-Add Swagger / Swashbuckle for documentation.
-
-Optionally generate client SDK with NSwag.
-
+- **Phase 3 – API Documentation**
+  - Add Swagger / Swashbuckle for documentation.
+  - Optionally generate client SDK with NSwag.
+  
 ---
 
 ## 📬 Sample API Requests
@@ -103,7 +101,13 @@ Content-Type: application/json
   "name": "Payment Service",
   "environment": "Production"
 }
+
+```
+
 Create Error Log
+
+```bash
+
 http POST /api/ErrorLogs
 Content-Type: application/json
 
