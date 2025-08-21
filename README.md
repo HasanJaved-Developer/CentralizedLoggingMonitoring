@@ -53,12 +53,22 @@ The project supports multiple environments:
 
 ---
 
-📦 Running the Project
-# Build and start the containers
-docker-compose up --build
+## 🖥️ Running with Visual Studio (Development)
+Open CentralizedLoggingMonitoring.sln in Visual Studio.
 
-# Stop the containers
-docker-compose down
+Press F5 or run the project.
+
+By default, it uses Development environment with appsettings.Development.json.
+
+---
+
+## 📦 Running with Docker (Production)
+
+- **Build and start the containers**
+  - docker-compose up --build
+  
+- **Stop the containers**
+  - docker-compose down
 
 
 The API will be available at:
@@ -67,12 +77,6 @@ HTTP → http://localhost:5000/api
 
 (HTTPS optional, future phase)
 
-🖥️ Running with Visual Studio
-Open CentralizedLoggingMonitoring.sln in Visual Studio.
-
-Press F5 or run the project.
-
-By default, it uses Development environment with appsettings.Development.json.
 
 ---
 
