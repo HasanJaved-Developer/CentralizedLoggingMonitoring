@@ -1,59 +1,119 @@
-Centralized Logging & Monitoring API – Phase 1
+# Centralized Logging & Monitoring API
 
-A centralized service for logging application errors. Built with .NET 9 Web API, Entity Framework Core, and SQL Server, this project provides a foundation for capturing, storing, and querying application logs.
+A centralized error logging and monitoring API built with **.NET 9**, Entity Framework Core, and SQL Server.  
+This project is designed to serve as a foundation for collecting, storing, and managing error logs from multiple applications.
 
-Features (Phase 1)
+---
 
-.NET 9 Web API with REST endpoints
+## 🚀 Features (Phase 1)
+- .NET 9 Web API project
+- Entity Framework Core integration
+- SQL Server (Docker container)
+- Application & Error Log models with relationships
+- API endpoints to manage Applications and Error Logs
+- Environment-based configuration (`Development` and `Production`)
+- Runs in both **Visual Studio** and **Docker Compose**
 
-Entity Framework Core with SQL Server integration
+---
 
-Database schema for Applications and ErrorLogs
+## 📂 Project Structure
 
-Database seeding with sample data
+CentralizedLoggingMonitoring/
+│-- CentralizedLoggingApi/ # API source code
+│-- docker-compose.yml # Docker setup for API + SQL Server
+│-- README.md # Project documentation
 
-Dockerized setup (API + SQL Server)
+---
 
-Supports Development and Production environments
+## ⚙️ Environments
+The project supports multiple environments:
 
-Can run both inside Visual Studio (local dev) or via Docker Compose (containerized deployment)
+- **Development**
+  - Connection string uses local SQL Server (LocalDB).
+  - Loaded from `appsettings.Development.json`.
 
-Running the Project
-Option 1: Visual Studio (Development)
+- **Production**
+  - Connection string points to Docker SQL Server.
+  - Loaded from `appsettings.Production.json`.
+  - Environment set via:
+    ```bash
+    ASPNETCORE_ENVIRONMENT=Production
+    ```
 
-By default, the project runs with appsettings.Development.json.
+---
 
-Database: Local SQL Server instance (or LocalDB).
+## 🐳 Running with Docker
+1. Build and run containers:
+   
+	docker-compose up --build
+	
+2. Stop containers:
 
-Simply press F5 in Visual Studio to run.
+	docker-compose down
+	
+3. Check running containers:
 
-Option 2: Docker (Production-like)
+	docker ps -a
+	
+	
+The API will be available at:
 
-Ensure Docker Desktop is running.
+HTTP → http://localhost:5000/api
 
-Run the containers:
+(HTTPS optional, future phase)
 
-docker-compose up --build
+🖥️ Running with Visual Studio
+Open CentralizedLoggingMonitoring.sln in Visual Studio.
+
+Press F5 or run the project.
+
+By default, it uses Development environment with appsettings.Development.json.
+
+📌 Future Enhancements
+Phase 2 – Logging Integration
+Add Serilog (file + SQL Server sink).
+
+Middleware for capturing unhandled exceptions.
+
+Structured JSON logging support.
+
+Phase 3 – API Documentation
+Add Swagger / Swashbuckle for documentation.
+
+Optionally generate client SDK with NSwag.
+
+📬 Sample API Requests
+Create Application
+http
+Copy
+POST /api/Applications
+Content-Type: application/json
+
+{
+  "name": "Payment Service",
+  "environment": "Production"
+}
+Create Error Log
+http
+Copy
+POST /api/ErrorLogs
+Content-Type: application/json
+
+{
+  "applicationId": 1,
+  "severity": "Error",
+  "message": "Null reference exception in payment processing",
+  "stackTrace": "at PaymentService.Process()...",
+  "source": "PaymentService",
+  "userId": "user123",
+  "requestId": "req-456"
+}
+🤝 Contributing
+Future phases will be added in branches (phase-2, phase-3, …).
+Main branch will always contain the latest stable version.
+
+📜 License
+This project is licensed under the MIT License.
 
 
-This starts two containers:
-
-centralized_logging_api → .NET 9 API
-
-centralized_logging_db → SQL Server 2022
-
-Access the API at:
-
-HTTP: http://localhost:5000/api/Applications
-
-HTTP: http://localhost:5000/api/ErrorLogs
-
-ℹ️ The API listens on port 8080 inside the container, mapped to 5000 on the host.
-
-Roadmap
-
-Phase 2: Serilog integration (file + database sinks), exception handling middleware, structured JSON logging.
-
-Phase 3: API documentation with Swagger/NSwag.
-
-Phase 4: JWT authentication, role-based access, and monitoring dashboard.
+---
