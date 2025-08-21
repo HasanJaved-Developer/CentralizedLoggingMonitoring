@@ -53,21 +53,14 @@ The project supports multiple environments:
 
 ---
 
-## 🐳 Running with Docker
-1. **Build and run containers:**
+📦 Running the Project
+# Build and start the containers
+docker-compose up --build
 
-   ```bash
-   docker-compose up --build
-	
-2. Stop containers:
+# Stop the containers
+docker-compose down
 
-	docker-compose down
-	
-3. Check running containers:
 
-	docker ps -a
-	
-	
 The API will be available at:
 
 HTTP → http://localhost:5000/api
@@ -81,7 +74,9 @@ Press F5 or run the project.
 
 By default, it uses Development environment with appsettings.Development.json.
 
-📌 Future Enhancements
+---
+
+## 📌 Future Enhancements
 Phase 2 – Logging Integration
 Add Serilog (file + SQL Server sink).
 
@@ -94,11 +89,11 @@ Add Swagger / Swashbuckle for documentation.
 
 Optionally generate client SDK with NSwag.
 
-📬 Sample API Requests
+---
+
+## 📬 Sample API Requests
 Create Application
-http
-Copy
-POST /api/Applications
+http POST /api/Applications
 Content-Type: application/json
 
 {
@@ -106,9 +101,7 @@ Content-Type: application/json
   "environment": "Production"
 }
 Create Error Log
-http
-Copy
-POST /api/ErrorLogs
+http POST /api/ErrorLogs
 Content-Type: application/json
 
 {
@@ -120,11 +113,26 @@ Content-Type: application/json
   "userId": "user123",
   "requestId": "req-456"
 }
-🤝 Contributing
+
+---
+
+## 🤝 Contributing
+
 Future phases will be added in branches (phase-2, phase-3, …).
 Main branch will always contain the latest stable version.
 
-📜 License
+---
+
+## 📂 Repository Roadmap
+
+phase-1-core-api → Completed Phase 1.
+phase-2-logging → Planned logging integration.
+phase-3-swagger → Planned API documentation.
+main → Always up to date with the latest stable phase.
+
+---
+
+## 📜 License
 This project is licensed under the MIT License.
 
 
