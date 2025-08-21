@@ -43,9 +43,10 @@ The project supports multiple environments:
 ---
 
 ## 🐳 Running with Docker
-1. Build and run containers:
-   
-	docker-compose up --build
+1. **Build and run containers:**
+
+   ```bash
+   docker-compose up --build
 	
 2. Stop containers:
 
