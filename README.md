@@ -18,7 +18,7 @@ This project is designed to serve as a foundation for collecting, storing, and m
 
 ## Project Structure
 
-
+```bash
 
 CentralizedLoggingMonitoring/
 ├── CentralizedLoggingApi/ # Core API project
@@ -32,6 +32,7 @@ CentralizedLoggingMonitoring/
 ├── README.md # Documentation
 └── .gitignore
 
+```
 
 ---
 
