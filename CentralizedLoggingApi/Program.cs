@@ -1,11 +1,21 @@
+using CentralizedLoggingApi;
+using CentralizedLoggingApi.Data;
+using CentralizedLoggingApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models; 
-using CentralizedLoggingApi.Data;
-using CentralizedLoggingApi;
+using Serilog;
+using System.Reflection;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.WithProperty("Application", "CentralizedLogging") // change if needed
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 Console.WriteLine($"Connection: {builder.Configuration.GetConnectionString("DefaultConnection")}");
@@ -13,6 +23,9 @@ Console.WriteLine($"Connection: {builder.Configuration.GetConnectionString("Defa
 // DB connection string (SQL Server example)
 builder.Services.AddDbContext<LoggingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
 
@@ -28,9 +41,27 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "API for centralized error logging and monitoring"
     });
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true); // ok if your Swashbuckle version supports the bool
+
 });
 
 var app = builder.Build();
+
+app.Use(async (ctx, next) =>
+{
+    using (Serilog.Context.LogContext.PushProperty("Environment", app.Environment.EnvironmentName))
+    using (Serilog.Context.LogContext.PushProperty("Service", "CoreAPI"))
+    using (Serilog.Context.LogContext.PushProperty("CorrelationId", ctx.TraceIdentifier))
+    {
+        await next();
+    }
+});
+
+// Middleware should be early in the pipeline
+app.UseMiddleware<RequestAudibilityMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -47,6 +78,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+
+
 
 app.MapControllers();
 

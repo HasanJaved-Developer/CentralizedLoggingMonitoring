@@ -6,9 +6,12 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
     ports:
       - "5000:8080"   # Map host:container for HTTP
-      - "5001:8081"   # Map host:container for HTTPS (if your app supports it)    
+      - "5001:8081"   # Map host:container for HTTPS (if your app supports it)   
     depends_on:
       - db       
+    volumes:
+      - ./CentralizedLoggingApi/logs:/app/logs   
+          
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
