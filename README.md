@@ -3,6 +3,8 @@
 A centralized error logging and monitoring API built with **.NET 9**, Entity Framework Core, and SQL Server.  
 This project is designed to serve as a foundation for collecting, storing, and managing error logs from multiple applications.
 
+This project implements **Phase 1–3** (completed) and outlines future **Phase 4–6** enhancements.  
+
 ---
 
 ## 🚀 Features (Phase 1)
@@ -13,6 +15,26 @@ This project is designed to serve as a foundation for collecting, storing, and m
 - API endpoints to manage Applications and Error Logs
 - Environment-based configuration (`Development` and `Production`)
 - Runs in both **Visual Studio** and **Docker Compose**
+
+---
+
+## 📌 Project Phases
+
+### ✅ Phase 1: Core API
+- Create centralized logging API
+- Store logs in SQL Server
+- Basic Serilog integration
+- Swagger/OpenAPI setup
+
+### ✅ Phase 2: Containerization
+- Add `Dockerfile`
+- Add `docker-compose.yml` for API + SQL Server
+- Persistent volumes for database
+
+### ✅ Phase 3: Logging Enhancements
+- Structured logging with Serilog sinks
+- Support for File output
+- Correlation ID, environment, and service enrichment
 
 ---
 
@@ -80,16 +102,21 @@ HTTP → http://localhost:5000/api
 
 ---
 
-## 📌 Future Enhancements
+## 📈 Future Enhancements
 
-- **Phase 2 – Logging Integration**
-  - Add Serilog (file + SQL Server sink).
-  - Middleware for capturing unhandled exceptions.
-  - Structured JSON logging support.
+### 🔒 Phase 4: User Management API
+- Authentication and Authorization using JWT
+- Role-based access for viewing logs
+- Claims-based authorization
 
-- **Phase 3 – API Documentation**
-  - Add Swagger / Swashbuckle for documentation.
-  - Optionally generate client SDK with NSwag.
+### 🐛 Phase 5: Try-Catch Integration
+- Using the centralized logging API in other apps  
+- Capture and post exceptions automatically from services
+
+### 🌐 Phase 6: Web Dashboard
+- Lightweight web app with login  
+- Display logs from DB  
+- Search & filter logs by date, service, environment, severity
   
 ---
 
