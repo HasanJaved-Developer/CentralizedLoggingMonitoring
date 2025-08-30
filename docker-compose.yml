@@ -12,7 +12,6 @@ services:
     volumes:
       - ./CentralizedLoggingApi/logs:/app/logs   
 
-
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: centralized_logging_db
