@@ -7,17 +7,6 @@ This project implements **Phase 1–3** (completed) and outlines future **Phase 
 
 ---
 
-## 🚀 Features (Phase 1)
-- .NET 9 Web API project
-- Entity Framework Core integration
-- SQL Server (Docker container)
-- Application & Error Log models with relationships
-- API endpoints to manage Applications and Error Logs
-- Environment-based configuration (`Development` and `Production`)
-- Runs in both **Visual Studio** and **Docker Compose**
-
----
-
 ## 📌 Project Phases
 
 ### ✅ Phase 1: Core API
