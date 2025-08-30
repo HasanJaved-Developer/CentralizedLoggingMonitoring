@@ -13,6 +13,7 @@ namespace CentralizedLoggingApi.Migrations
     [DbContext(typeof(LoggingDbContext))]
     partial class LoggingDbContextModelSnapshot : ModelSnapshot
     {
+
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
