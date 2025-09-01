@@ -30,6 +30,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;
 
+var keyBase64 = builder.Configuration["Jwt:KeyBase64"]!;
+var keyPlain = Encoding.UTF8.GetString(Convert.FromBase64String(keyBase64));
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
@@ -40,7 +43,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwt.Issuer,
             ValidAudience = jwt.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyPlain)),
             ClockSkew = TimeSpan.Zero
         };
     });
