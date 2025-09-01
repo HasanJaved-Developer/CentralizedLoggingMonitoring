@@ -91,6 +91,12 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "User Management API v1");
+        c.RoutePrefix = string.Empty; // Swagger UI at root "/"
+    });
 }
 
 app.UseHttpsRedirection();

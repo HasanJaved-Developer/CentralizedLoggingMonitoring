@@ -38,7 +38,7 @@ namespace UserManagementApi.Controllers
             var user = await _db.Users
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
-                .FirstOrDefaultAsync(u => u.UserName == req.UserName && u.Password == req.Password);
+                .FirstOrDefaultAsync(u => u.UserName == req.UserName && u.Password == BCrypt.Net.BCrypt.HashPassword(req.Password));
 
             if (user == null)
                 return Unauthorized("Invalid credentials.");
