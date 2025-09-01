@@ -72,4 +72,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Seed sample data
+DbSeeder.Seed(app.Services);
+
 app.Run();

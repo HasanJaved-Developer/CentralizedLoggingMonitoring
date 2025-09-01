@@ -45,3 +45,4 @@ namespace UserManagementApi.Controllers
             return Ok(dto);
         }
     }
+}
