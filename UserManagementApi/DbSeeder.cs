@@ -47,8 +47,8 @@ namespace UserManagementApi
 
                 var users = new List<AppUser>
                 {
-                    new AppUser { Id = 1, UserName = "alice", Password = "alice" },
-                    new AppUser { Id = 2, UserName = "bob",   Password = "bob" }
+                    new AppUser { Id = 1, UserName = "alice", Password = BCrypt.Net.BCrypt.HashPassword("alice") },
+                    new AppUser { Id = 2, UserName = "bob", Password = BCrypt.Net.BCrypt.HashPassword("boob") }
                 };
 
                 var userRoles = new List<UserRole>

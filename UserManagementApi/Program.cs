@@ -1,10 +1,14 @@
-using UserManagementApi;
-using UserManagementApi.Data;
-using UserManagementApi.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
+using System.Text;
+using UserManagementApi;
+using UserManagementApi.Data;
+using UserManagementApi.DTO.Auth;
+using UserManagementApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +26,26 @@ Console.WriteLine($"Connection: {builder.Configuration.GetConnectionString("Defa
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Add JwtOptions + Authentication
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
+    {
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwt.Issuer,
+            ValidAudience = jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -68,6 +92,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
+app.UseAuthentication(); // must be before UseAuthorization
 app.UseAuthorization();
 
 app.MapControllers();
