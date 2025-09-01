@@ -18,6 +18,7 @@ namespace UserManagementApi.Data
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);
+                        
 
             // Keys for join entities
             b.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleId });
@@ -55,8 +56,6 @@ namespace UserManagementApi.Data
                 .HasOne(rf => rf.Function)
                 .WithMany(f => f.RoleFunctions)
                 .HasForeignKey(rf => rf.FunctionId);
-
-            
         }
     }
 }

@@ -60,9 +60,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Centralized Logging API",
+        Title = "User Management API",
         Version = "v1",
-        Description = "API for centralized error logging and monitoring"
+        Description = "API for user authentication, authorization and management"
     });
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);

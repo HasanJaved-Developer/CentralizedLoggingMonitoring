@@ -11,75 +11,70 @@ namespace UserManagementApi
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            // Apply any pending migrations
+            // Apply pending migrations
             context.Database.Migrate();
 
-            // Only seed if DB is empty (idempotent)
-            var categories = new List<Category>
-            {
-                new Category { Id = 1, Name = "Administration" },
-                new Category { Id = 2, Name = "Operations" }
-            };
+            // Only seed once
+            if (context.Users.Any() || context.Roles.Any() || context.Categories.Any())
+                return;
 
-            var modules = new List<Module>
-            {
-                new Module { Id = 1, Name = "User Management", Area = "Admin", Controller = "Users", Action = "Index", CategoryId = 1 },
-                new Module { Id = 2, Name = "Role Management", Area = "Admin", Controller = "Roles", Action = "Index", CategoryId = 1 },
-                new Module { Id = 3, Name = "Payments", Area = "Ops", Controller = "Payments", Action = "Index", CategoryId = 2 }
-            };
+            // ----- Categories -----
+            var adminCat = new Category { Name = "Administration" };
+            var opsCat = new Category { Name = "Operations" };
+            context.Categories.AddRange(adminCat, opsCat);
+            context.SaveChanges(); // get IDs
 
-            var functions = new List<Function>
-            {
-                new Function { Id = 1, ModuleId = 1, Code = "Users.View", DisplayName = "View Users" },
-                new Function { Id = 2, ModuleId = 1, Code = "Users.Edit", DisplayName = "Edit Users" },
-                new Function { Id = 3, ModuleId = 2, Code = "Roles.View", DisplayName = "View Roles" },
-                new Function { Id = 4, ModuleId = 2, Code = "Roles.Assign", DisplayName = "Assign Roles" },
-                new Function { Id = 5, ModuleId = 3, Code = "Payments.View", DisplayName = "View Payments" }
-            };
+            // ----- Modules (link via navigation) -----
+            var modUsers = new Module { Name = "User Management", Area = "Admin", Controller = "Users", Action = "Index", Category = adminCat };
+            var modRoles = new Module { Name = "Role Management", Area = "Admin", Controller = "Roles", Action = "Index", Category = adminCat };
+            var modPay = new Module { Name = "Payments", Area = "Ops", Controller = "Payments", Action = "Index", Category = opsCat };
+            context.Modules.AddRange(modUsers, modRoles, modPay);
+            context.SaveChanges();
 
-            var roles = new List<Role>
-            {
-                new Role { Id = 1, Name = "Admin" },
-                new Role { Id = 2, Name = "Operator" }
-            };
+            // ----- Functions (link via navigation) -----
+            var fUsersView = new Function { Module = modUsers, Code = "Users.View", DisplayName = "View Users" };
+            var fUsersEdit = new Function { Module = modUsers, Code = "Users.Edit", DisplayName = "Edit Users" };
+            var fRolesView = new Function { Module = modRoles, Code = "Roles.View", DisplayName = "View Roles" };
+            var fRolesAssign = new Function { Module = modRoles, Code = "Roles.Assign", DisplayName = "Assign Roles" };
+            var fPayView = new Function { Module = modPay, Code = "Payments.View", DisplayName = "View Payments" };
+            context.Functions.AddRange(fUsersView, fUsersEdit, fRolesView, fRolesAssign, fPayView);
+            context.SaveChanges();
 
-            var users = new List<AppUser>
-            {
-                new AppUser { Id = 1, UserName = "alice", Password = BCrypt.Net.BCrypt.HashPassword("alice") },
-                new AppUser { Id = 2, UserName = "bob", Password = BCrypt.Net.BCrypt.HashPassword("boob") }
-            };
+            // ----- Roles -----
+            var adminRole = new Role { Name = "Admin" };
+            var operatorRole = new Role { Name = "Operator" };
+            context.Roles.AddRange(adminRole, operatorRole);
+            context.SaveChanges();
 
-            var userRoles = new List<UserRole>
-            {
-                new UserRole { UserId = 1, RoleId = 1 }, // alice → Admin
-                new UserRole { UserId = 2, RoleId = 2 }  // bob → Operator
-            };
+            // ----- Users (hashed passwords) -----
+            var alice = new AppUser { UserName = "alice", Password = BCrypt.Net.BCrypt.HashPassword("alice") };
+            var bob = new AppUser { UserName = "bob", Password = BCrypt.Net.BCrypt.HashPassword("bob") };
+            context.Users.AddRange(alice, bob);
+            context.SaveChanges();
 
-            var roleFunctions = new List<RoleFunction>
-            {
-                // Admin gets everything
-                new RoleFunction { RoleId = 1, FunctionId = 1 },
-                new RoleFunction { RoleId = 1, FunctionId = 2 },
-                new RoleFunction { RoleId = 1, FunctionId = 3 },
-                new RoleFunction { RoleId = 1, FunctionId = 4 },
-                new RoleFunction { RoleId = 1, FunctionId = 5 },
+            // ----- User ↔ Role (use entity refs, not IDs) -----
+            context.UserRoles.AddRange(
+                new UserRole { User = alice, Role = adminRole },
+                new UserRole { User = bob, Role = operatorRole }
+            );
+            context.SaveChanges();
 
-                // Operator gets limited
-                new RoleFunction { RoleId = 2, FunctionId = 1 }, // Users.View
-                new RoleFunction { RoleId = 2, FunctionId = 5 }  // Payments.View
-            };
-
-            // Add and save
-            context.Categories.AddRange(categories);
-            context.Modules.AddRange(modules);
-            context.Functions.AddRange(functions);
-            context.Roles.AddRange(roles);
-            context.Users.AddRange(users);
-            context.UserRoles.AddRange(userRoles);
-            context.RoleFunctions.AddRange(roleFunctions);
+            // ----- Role ↔ Function (use refs) -----
+            // Admin → all
+            context.RoleFunctions.AddRange(
+                new RoleFunction { Role = adminRole, Function = fUsersView },
+                new RoleFunction { Role = adminRole, Function = fUsersEdit },
+                new RoleFunction { Role = adminRole, Function = fRolesView },
+                new RoleFunction { Role = adminRole, Function = fRolesAssign },
+                new RoleFunction { Role = adminRole, Function = fPayView }
+            );
+            // Operator → limited
+            context.RoleFunctions.AddRange(
+                new RoleFunction { Role = operatorRole, Function = fUsersView },
+                new RoleFunction { Role = operatorRole, Function = fPayView }
+            );
 
             context.SaveChanges();
-            
         }
     }
 }

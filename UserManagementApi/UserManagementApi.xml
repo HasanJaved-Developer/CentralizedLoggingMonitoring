@@ -4,5 +4,17 @@
         <name>UserManagementApi</name>
     </assembly>
     <members>
+        <member name="T:UserManagementApi.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:UserManagementApi.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UserManagementApi.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UserManagementApi.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
     </members>
 </doc>
