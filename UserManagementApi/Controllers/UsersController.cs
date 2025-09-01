@@ -34,14 +34,15 @@ namespace UserManagementApi.Controllers
             if (string.IsNullOrWhiteSpace(req.UserName) || string.IsNullOrWhiteSpace(req.Password))
                 return BadRequest("Username and password are required.");
 
-            // Validate user (plain text as per your seed)
             var user = await _db.Users
                 .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
-                .FirstOrDefaultAsync(u => u.UserName == req.UserName && u.Password == BCrypt.Net.BCrypt.HashPassword(req.Password));
+                .FirstOrDefaultAsync(u => u.UserName == req.UserName);
 
-            if (user == null)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.Password))
+            {
                 return Unauthorized("Invalid credentials.");
+            }
 
             // Collect roles & function codes for claims (optional but handy)
             var roleIds = user.UserRoles.Select(ur => ur.RoleId).ToList();
@@ -80,33 +81,65 @@ namespace UserManagementApi.Controllers
 
         private async Task<UserPermissionsDto> BuildPermissionsForUser(int userId)
         {
-            var user = await _db.Users.FirstAsync(u => u.Id == userId);
+            // Fetch the user (for name in DTO)
+            var user = await _db.Users.AsNoTracking().FirstAsync(u => u.Id == userId);
 
-            var categories = await _db.Categories
-                .Select(c => new CategoryDto(
-                    c.Id,
-                    c.Name,
-                    c.Modules
-                      .Select(m => new ModuleDto(
-                          m.Id, m.Name, m.Area, m.Controller, m.Action,
-                          m.Functions
-                            .Where(f => f.RoleFunctions
-                                .Any(rf => rf.Role.UserRoles.Any(ur => ur.UserId == userId)))
-                            .Select(f => new FunctionDto(f.Id, f.Code, f.DisplayName))
+            // 1) Get all (Category, Module, Function) triples the user is allowed to access.
+            //    This is fully translatable SQL: joins + where.
+            var triples = await (
+                from ur in _db.UserRoles.AsNoTracking()
+                where ur.UserId == userId
+                join rf in _db.RoleFunctions.AsNoTracking() on ur.RoleId equals rf.RoleId
+                join f in _db.Functions
+                            .Include(x => x.Module)
+                                .ThenInclude(m => m.Category)
+                            .AsNoTracking()
+                      on rf.FunctionId equals f.Id
+                select new
+                {
+                    CategoryId = f.Module.Category.Id,
+                    CategoryName = f.Module.Category.Name,
+                    ModuleId = f.Module.Id,
+                    ModuleName = f.Module.Name,
+                    f.Module.Area,
+                    f.Module.Controller,
+                    f.Module.Action,
+                    FunctionId = f.Id,
+                    f.Code,
+                    f.DisplayName
+                }
+            ).ToListAsync();
+
+            // 2) Group in memory to shape the hierarchical DTOs.
+            var categoryDtos = triples
+                .GroupBy(t => new { t.CategoryId, t.CategoryName })
+                .Select(cg => new CategoryDto(
+                    cg.Key.CategoryId,
+                    cg.Key.CategoryName,
+                    cg.GroupBy(t => new { t.ModuleId, t.ModuleName, t.Area, t.Controller, t.Action })
+                      .Select(mg => new ModuleDto(
+                          mg.Key.ModuleId,
+                          mg.Key.ModuleName,
+                          mg.Key.Area,
+                          mg.Key.Controller,
+                          mg.Key.Action,
+                          mg.GroupBy(x => new { x.FunctionId, x.Code, x.DisplayName }) // distinct functions
+                            .Select(g => new FunctionDto(g.Key.FunctionId, g.Key.Code, g.Key.DisplayName))
+                            .OrderBy(f => f.Code)
                             .ToList()
                       ))
-                      .Where(md => md.Functions.Any())
+                      .OrderBy(m => m.Name)
                       .ToList()
                 ))
-                .Where(cd => cd.Modules.Any())
-                .ToListAsync();
+                .OrderBy(c => c.Name)
+                .ToList();
 
-            return new UserPermissionsDto(user.Id, user.UserName, categories);
+            return new UserPermissionsDto(user.Id, user.UserName, categoryDtos);
         }
 
         private string GenerateJwt(AppUser user, IEnumerable<string> roles, IEnumerable<string> functionCodes, out DateTime expiresAtUtc)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.KeyBase64));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>

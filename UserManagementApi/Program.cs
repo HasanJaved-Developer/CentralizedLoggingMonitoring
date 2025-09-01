@@ -64,11 +64,39 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "API for user authentication, authorization and management"
     });
+
+    // Bearer token support
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Description = "JWT auth using Bearer scheme. Paste **only** the token below.",
+
+        Reference = new OpenApiReference
+        {
+            Id = "Bearer",
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+
+    c.AddSecurityDefinition("Bearer", jwtSecurityScheme);
+
+    // Require Bearer token for all operations (you can remove if you prefer per-endpoint)
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtSecurityScheme, Array.Empty<string>() }
+    });
+
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true); // ok if your Swashbuckle version supports the bool
 
 });
+
+
 
 var app = builder.Build();
 
