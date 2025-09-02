@@ -44,16 +44,10 @@ namespace UserManagementApi.Controllers
                 return Unauthorized("Invalid credentials.");
             }
 
-            // Collect roles & function codes for claims (optional but handy)
-            var roleIds = user.UserRoles.Select(ur => ur.RoleId).ToList();
-
-            var functionCodes = await _db.RoleFunctions
-                .Where(rf => roleIds.Contains(rf.RoleId))
-                .Select(rf => rf.Function.Code)
-                .Distinct()
-                .ToListAsync();
-
-            var token = GenerateJwt(user, user.UserRoles.Select(ur => ur.Role.Name).Distinct().ToList(), functionCodes, out var expiresAtUtc);
+   
+            var dto = await BuildPermissionsForUser(user.Id);
+                        
+            var token = GenerateJwt(user, dto.Categories, out var expiresAtUtc);
 
             // Get the same permissions tree you already expose
             var permissions = await BuildPermissionsForUser(user.Id);
@@ -136,10 +130,13 @@ namespace UserManagementApi.Controllers
 
             return new UserPermissionsDto(user.Id, user.UserName, categoryDtos);
         }
-
-        private string GenerateJwt(AppUser user, IEnumerable<string> roles, IEnumerable<string> functionCodes, out DateTime expiresAtUtc)
+                
+        private string GenerateJwt(AppUser user, List<CategoryDto> Categories, out DateTime expiresAtUtc)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.KeyBase64));
+            var keyBase64 = _jwt.Key;
+            var keyPlain = Encoding.UTF8.GetString(Convert.FromBase64String(keyBase64));
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyPlain));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
@@ -147,13 +144,12 @@ namespace UserManagementApi.Controllers
                 new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new(JwtRegisteredClaimNames.UniqueName, user.UserName)
             };
-
-            // optional: add role claims
-            claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
-
-            // optional: add function claims (careful: keep token size reasonable)
-            foreach (var fn in functionCodes)
-                claims.Add(new Claim("perm", fn));
+            
+            
+            // optional: add claims (careful: keep token size reasonable)
+            var categoriesJson = System.Text.Json.JsonSerializer.Serialize(Categories);
+            claims.Add(new Claim("categories", categoriesJson));
+            
 
             var now = DateTime.UtcNow;
             expiresAtUtc = now.AddMinutes(_jwt.ExpiresMinutes);

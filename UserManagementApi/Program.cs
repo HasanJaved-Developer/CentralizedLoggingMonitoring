@@ -30,7 +30,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;
 
-var keyBase64 = builder.Configuration["Jwt:KeyBase64"]!;
+var keyBase64 = builder.Configuration["Jwt:Key"]!;
 var keyPlain = Encoding.UTF8.GetString(Convert.FromBase64String(keyBase64));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -58,7 +58,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    c.SwaggerDoc("v1", new()
     {
         Title = "User Management API",
         Version = "v1",
@@ -66,26 +66,26 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     // Bearer token support
-    var jwtSecurityScheme = new OpenApiSecurityScheme
+    var jwtSecurityScheme = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Scheme = "bearer",
         BearerFormat = "JWT",
         Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
         Description = "JWT auth using Bearer scheme. Paste **only** the token below.",
 
-        Reference = new OpenApiReference
+        Reference = new Microsoft.OpenApi.Models.OpenApiReference
         {
             Id = "Bearer",
-            Type = ReferenceType.SecurityScheme
+            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme
         }
     };
 
     c.AddSecurityDefinition("Bearer", jwtSecurityScheme);
 
     // Require Bearer token for all operations (you can remove if you prefer per-endpoint)
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
         { jwtSecurityScheme, Array.Empty<string>() }
     });
@@ -117,8 +117,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
+{    
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
