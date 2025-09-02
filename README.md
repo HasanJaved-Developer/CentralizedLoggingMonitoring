@@ -3,7 +3,7 @@
 A centralized error logging and monitoring API built with **.NET 9**, Entity Framework Core, and SQL Server.  
 This project is designed to serve as a foundation for collecting, storing, and managing error logs from multiple applications.
 
-This project implements **Phase 1–3** (completed) and outlines future **Phase 4–6** enhancements.  
+This project implements **Phase 1–4** (completed) and outlines future **Phase 5–6** enhancements.  
 
 ---
 
@@ -24,6 +24,14 @@ This project implements **Phase 1–3** (completed) and outlines future **Phase 
 - Structured logging with Serilog sinks
 - Support for File output
 - Correlation ID, environment, and service enrichment
+
+### ✅ Phase 4: User Management API
+- Implemented JWT (Bearer) authentication and claim/role-based authorization.
+- Categories have modules which have functions.
+- Roles have functions and user have roles.
+- Embed full user categories in JWT (temp); plan session cache
+- Serilog and code first approach
+
 
 ---
 
@@ -93,16 +101,24 @@ HTTP → http://localhost:5000/api
 
 ## 📈 Future Enhancements
 
-### 🔒 Phase 4: User Management API
-- Authentication and Authorization using JWT
-- Role-based access for viewing logs
-- Claims-based authorization
+### 🔒 Phase 5: MVC Asp .NetCore Web Application
+- Authentication and Authorization
+- Menu
+- Storing JWT in memory cache
+- Centralized code to call APIs from client
 
-### 🐛 Phase 5: Try-Catch Integration
+### 🐛 Phase 6: Info Express API with Client
+- Add SQL and SQL count in database of a report ABC
+- Add Parameter JSON in database of a report ABC
+- Add Datatable Header JSON in database of a report ABC 
+- Update Seed Data
+- Create a form ABC to search and download without writing code
+
+### 🐛 Phase 7: Try-Catch Integration
 - Using the centralized logging API in other apps  
 - Capture and post exceptions automatically from services
 
-### 🌐 Phase 6: Web Dashboard
+### 🌐 Phase 8: Web Dashboard
 - Lightweight web app with login  
 - Display logs from DB  
 - Search & filter logs by date, service, environment, severity
@@ -158,7 +174,7 @@ Main branch will always contain the latest stable version.
 
 phase-1-core-api → Completed Phase 1.
 phase-2-logging → Planned logging integration.
-phase-3-swagger → Planned API documentation.
+phase-3-um-api → Planned API documentation.
 main → Always up to date with the latest stable phase.
 
 ```
