@@ -12,6 +12,19 @@ services:
     volumes:
       - ./CentralizedLoggingApi/logs:/app/logs   
 
+  userapi:
+    build: ./UserManagementApi
+    container_name: user_management_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production            
+    ports:
+      - "6000:8080"   # Host 6000 -> container 8080 (HTTP)
+      # - "6001:8081" # Optional HTTPS mapping if your app listens on 8081
+    depends_on:
+      - db
+    volumes:
+      - ./UserManagementApi/logs:/app/logs    
+
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: centralized_logging_db
