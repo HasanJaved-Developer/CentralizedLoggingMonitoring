@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiIntegrationMvc", "ApiInt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Contracts", "UserManagement.Contracts\UserManagement.Contracts.csproj", "{92C42742-A4B5-4661-99CB-3E6229B6FAE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagement.Sdk", "UserManagement.Sdk\UserManagement.Sdk.csproj", "{7F2BE969-553A-438D-9F79-2191C2ACF9A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{92C42742-A4B5-4661-99CB-3E6229B6FAE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92C42742-A4B5-4661-99CB-3E6229B6FAE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92C42742-A4B5-4661-99CB-3E6229B6FAE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F2BE969-553A-438D-9F79-2191C2ACF9A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F2BE969-553A-438D-9F79-2191C2ACF9A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F2BE969-553A-438D-9F79-2191C2ACF9A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F2BE969-553A-438D-9F79-2191C2ACF9A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
