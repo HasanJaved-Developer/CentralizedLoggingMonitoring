@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using UserManagementApi.Contracts.Models;
 using UserManagementApi.Data;
-using UserManagementApi.Models;
+
 
 namespace UserManagementApi
 {

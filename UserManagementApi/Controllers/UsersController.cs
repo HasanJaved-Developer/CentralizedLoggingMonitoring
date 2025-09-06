@@ -7,10 +7,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using UserManagement.Contracts.Auth;
+using UserManagementApi.Contracts.Models;
 using UserManagementApi.Data;
 using UserManagementApi.DTO;
 using UserManagementApi.DTO.Auth;
-using UserManagementApi.Models;
+
 
 namespace UserManagementApi.Controllers
 {

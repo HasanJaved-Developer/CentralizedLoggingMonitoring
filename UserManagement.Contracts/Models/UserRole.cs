@@ -1,4 +1,4 @@
-﻿namespace UserManagementApi.Models
+﻿namespace UserManagementApi.Contracts.Models
 {
     public class UserRole
     {
