@@ -1,10 +1,8 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Polly;
 using CentralizedLogging.Sdk.Abstractions;
-using CentralizedLogging.Sdk.Auth;
 using CentralizedLogging.Sdk.Configuration;
 
 
@@ -26,13 +24,7 @@ namespace CentralizedLogging.Sdk.Extensions
             if (configure is not null)
                 services.PostConfigure(configure);
 
-            // Delegating handler MUST be transient
-            services.AddTransient<BearerTokenHandler>();
-
-            // Register the token provider (memory-based)
-            services.AddScoped<IAccessTokenProvider, MemoryCacheAccessTokenProvider>();
-
-
+           
             // The Typed client
             services.AddHttpClient<ICentralizedLoggingClient, CentralizedLoggingClient>((sp, http) =>
             {
@@ -42,8 +34,7 @@ namespace CentralizedLogging.Sdk.Extensions
 
                 http.BaseAddress = opts.BaseAddress;
                 http.Timeout = opts.Timeout;
-            })
-            .AddHttpMessageHandler<BearerTokenHandler>()
+            })            
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 // If you need custom certs, proxies, cookies, etc.
@@ -51,14 +42,14 @@ namespace CentralizedLogging.Sdk.Extensions
             })
             .AddPolicyHandler((sp, req) =>
             {
-                var opts = sp.GetRequiredService<IOptions<CentralizedLoggingOptions>().Value;
+                var opts = sp.GetRequiredService<IOptions<CentralizedLoggingOptions>>().Value;                
                 return opts.EnableResiliencePolicies
                     ? HttpPolicies.GetRetryPolicy()
                     : Polly.Policy.NoOpAsync().AsAsyncPolicy<HttpResponseMessage>();
             })
             .AddPolicyHandler((sp, req) =>
             {
-                var opts = sp.GetRequiredService<IOptions<CentralizedLoggingOptions>().Value;
+                var opts = sp.GetRequiredService<IOptions<CentralizedLoggingOptions>>().Value;
                 return opts.EnableResiliencePolicies
                     ? HttpPolicies.GetCircuitBreakerPolicy()
                     : Polly.Policy.NoOpAsync().AsAsyncPolicy<HttpResponseMessage>();
