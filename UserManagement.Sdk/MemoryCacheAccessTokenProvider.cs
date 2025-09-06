@@ -37,6 +37,12 @@ namespace UserManagement.Sdk
             _cache.Set($"token:{userId}", token, ttl);
         }
 
+        public Task RemoveAsync(string userId, CancellationToken ct = default)
+        {   
+            _cache.Remove($"token:{userId}");
+            return Task.CompletedTask;
+        }
+
         public static TimeSpan ToTtl(DateTime expiresAtUtc, TimeSpan? safety = null)
         {
             // ensure it's treated as UTC

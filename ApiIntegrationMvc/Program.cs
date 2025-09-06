@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using UserManagement.Sdk;
 using UserManagement.Sdk.Abstractions;
 using UserManagement.Sdk.Extensions;
@@ -15,6 +16,20 @@ builder.Services.AddUserManagementSdk();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Cookie auth for the web app (UI)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(o =>
+    {
+        o.LoginPath = "/Account/Login";
+        o.LogoutPath = "/Account/Logout";
+        o.AccessDeniedPath = "/Account/Denied";
+        // optional:
+        o.SlidingExpiration = true;
+        o.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

@@ -1,5 +1,8 @@
 ﻿using ApiIntegrationMvc.Areas.Account.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.Json;
 using UserManagement.Contracts.Auth;
 using UserManagement.Sdk.Abstractions;
@@ -11,7 +14,8 @@ namespace ApiIntegrationMvc.Areas.Account.Controllers
     {
         private readonly IUserManagementClient _users;
         private readonly IAccessTokenProvider _cache;
-        public LoginController(IUserManagementClient users, IAccessTokenProvider cache) => (_users, _cache) = (users, cache);
+        private readonly IHttpContextAccessor _http;
+        public LoginController(IUserManagementClient users, IAccessTokenProvider cache, IHttpContextAccessor http) => (_users, _cache, _http) = (users, cache, http);
 
         [HttpGet]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
@@ -41,7 +45,30 @@ namespace ApiIntegrationMvc.Areas.Account.Controllers
                     return RedirectToAction(nameof(Index));   // ← PRG on failure
                 }
 
-                
+
+                // Build claims (at least a stable user id + name)
+                var claims = new List<Claim>
+                {
+                    new(ClaimTypes.NameIdentifier, result.UserId.ToString()),
+                    new(ClaimTypes.Name, result.UserName),
+                  
+                };
+
+                var identity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                // Sign-in (creates auth cookie)
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(identity),
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = false,
+                        // keep cookie a bit shorter than token
+                        ExpiresUtc = result.ExpiresAtUtc.AddMinutes(-5)
+                    });
+
+
                 _cache.SetAccessToken(result.Token, result.UserId, result.ExpiresAtUtc);
 
                 return RedirectToAction("Index", "Home", new { area = "Home" });
@@ -63,6 +90,29 @@ namespace ApiIntegrationMvc.Areas.Account.Controllers
             }
         }
 
-        
+        private static string? Claim(ClaimsPrincipal? u, string t) => u?.FindFirst(t)?.Value;
+
+        private string? CurrentUserId() =>
+            Claim(_http.HttpContext?.User, "sub")
+         ?? Claim(_http.HttpContext?.User, ClaimTypes.NameIdentifier);
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout(CancellationToken ct)
+        {
+            var uid = CurrentUserId();
+            if (string.IsNullOrEmpty(uid))
+            {
+                return RedirectToAction("Index", "Login", new { area = "Account" });
+            }
+            // IMPORTANT: remove tokens while the user is still authenticated
+            await _cache.RemoveAsync(uid, ct);
+
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Login", new { area = "Account" });
+        }
+
+
     }
 }

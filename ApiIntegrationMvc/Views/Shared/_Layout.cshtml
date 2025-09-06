@@ -10,6 +10,126 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ApiIntegrationMvc.styles.css" asp-append-version="true" />
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+        }
+
+        .left {
+            border-right: 1px solid #eee;
+            overflow: auto;
+            padding: 12px;
+        }
+
+        .right {
+            overflow: auto;
+            padding: 16px;
+        }
+
+        /* Tree */
+        .tree, .tree ul {
+            list-style: none;
+            margin: 0;
+            padding-left: 0;
+        }
+
+            .tree li {
+                margin: 2px 0;
+            }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+            .row:hover {
+                background: #f5f7fb;
+            }
+
+            .row.active {
+                background: #e9f1ff;
+                outline: 1px solid #cfe1ff;
+            }
+
+        .toggle {
+            width: 18px;
+            text-align: center;
+            user-select: none;
+            font-weight: 600;
+            color: #666;
+        }
+
+        /* Tiles */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .path {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .tiles {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+            gap: 12px;
+        }
+
+        .tile {
+            border: 1px solid #eee;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.04);
+            transition: transform .06s, box-shadow .06s;
+        }
+
+            .tile:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 10px rgba(0,0,0,.06);
+                cursor: pointer;
+            }
+
+            .tile h4 {
+                margin: 0 0 6px 0;
+                font-size: 16px;
+            }
+
+            .tile p {
+                margin: 0;
+                color: #666;
+                font-size: 13px;
+            }
+
+        .empty {
+            color: #999;
+            padding: 12px 0;
+        }
+
+        .section {
+            margin: 10px 0 0 18px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin: 4px 0;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -23,13 +143,31 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door me-1"></i> Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy"><i class="bi bi-shield-lock me-1"></i> Privacy</a>
                         </li>
                     </ul>
                 </div>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ms-auto">
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <form asp-area="Account" asp-controller="Login" asp-action="Logout" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Account" asp-controller="Login" asp-action="Index">Login</a>
+                            </li>
+                        }
+                    </ul>
             </div>
         </nav>
     </header>
