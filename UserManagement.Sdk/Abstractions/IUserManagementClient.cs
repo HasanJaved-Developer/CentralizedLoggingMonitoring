@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserManagement.Contracts.Auth;
 
 namespace UserManagement.Sdk.Abstractions
 {
-    internal class IUserManagementClient
+    public interface IUserManagementClient
     {
+        Task<AuthResult?> LoginAsync(LoginRequest request, CancellationToken ct = default);
     }
 }

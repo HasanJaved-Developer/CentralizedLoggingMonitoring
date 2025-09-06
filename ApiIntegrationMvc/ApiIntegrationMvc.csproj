@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UserManagement.Sdk\UserManagement.Sdk.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,18 @@
+using UserManagement.Sdk;
+using UserManagement.Sdk.Abstractions;
+using UserManagement.Sdk.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+// Add MemoryCache globally
+builder.Services.AddMemoryCache();
+
+builder.Services.AddUserManagementSdk();
+
+// Register the token provider (memory-based)
+builder.Services.AddScoped<IAccessTokenProvider, MemoryCacheAccessTokenProvider>();
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

@@ -1,11 +1,16 @@
 ﻿using ApiIntegrationMvc.Areas.Account.Models;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.Contracts.Auth;
+using UserManagement.Sdk.Abstractions;
 
 namespace ApiIntegrationMvc.Areas.Account.Controllers
 {
     [Area("Account")]
     public class LoginController : Controller
     {
+        private readonly IUserManagementClient _users;
+        public LoginController(IUserManagementClient users) => _users = users;
+
         [HttpGet]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult Index()
@@ -16,18 +21,23 @@ namespace ApiIntegrationMvc.Areas.Account.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(LoginViewModel model)
+        public async Task<IActionResult> Index(LoginViewModel model, CancellationToken ct)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-                        
-            if(model.Username == "admin" && model.Password == "123")
-                return RedirectToAction("Index", "Home");     // PRG on success too            
+
+            var req = new LoginRequest(model.Username, model.Password);
+            var result = await _users.LoginAsync(req, ct);
+
+            if (result == null || string.IsNullOrWhiteSpace(result.AccessToken))
+            {
+                TempData["Error"] = "Invalid username or password.";
+                return RedirectToAction(nameof(Index));   // ← PRG on failure
+            }
             
-            TempData["Error"] = "Invalid username or password.";
-            return RedirectToAction(nameof(Index));   // ← PRG on failure
+            return RedirectToAction("Index", "Home");     // PRG on success too                                   
             
         }
     }

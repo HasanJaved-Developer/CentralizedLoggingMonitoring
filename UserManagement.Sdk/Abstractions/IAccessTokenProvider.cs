@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace UserManagement.Sdk.Abstractions
 {
-    internal class IAccessTokenProvider
+    public interface IAccessTokenProvider
     {
+        Task<string?> GetAccessTokenAsync(CancellationToken ct = default);
     }
 }
