@@ -1,6 +1,7 @@
 ﻿using CentralizedLoggingApi.Data;
 using CentralizedLoggingApi.DTO;
 using CentralizedLoggingApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,7 @@ namespace CentralizedLoggingApi.Controllers
             _context = context;
         }
 
+        [Authorize]
         // POST api/errorlogs
         [HttpPost]
         public async Task<IActionResult> LogError([FromBody] CreateErrorLogDto errorLogDto)
@@ -59,6 +61,7 @@ namespace CentralizedLoggingApi.Controllers
             return Ok(error);
         }
 
+        [Authorize]
         // GET api/errorlogs
         [HttpGet]
         public async Task<IActionResult> GetAllErrors()

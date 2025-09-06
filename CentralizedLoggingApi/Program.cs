@@ -1,10 +1,14 @@
 using CentralizedLoggingApi;
 using CentralizedLoggingApi.Data;
+using CentralizedLoggingApi.DTO.Auth;
 using CentralizedLoggingApi.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models; 
 using Serilog;
 using System.Reflection;
+using System.Text;
 
 
 
@@ -24,6 +28,30 @@ Console.WriteLine($"Connection: {builder.Configuration.GetConnectionString("Defa
 builder.Services.AddDbContext<LoggingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Add JwtOptions + Authentication
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;
+
+var keyBase64 = builder.Configuration["Jwt:Key"]!;
+var keyPlain = Encoding.UTF8.GetString(Convert.FromBase64String(keyBase64));
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
+    {
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwt.Issuer,
+            ValidAudience = jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyPlain)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 
 builder.Services.AddHttpContextAccessor();
 
@@ -41,6 +69,33 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "API for centralized error logging and monitoring"
     });
+
+    // Bearer token support
+    var jwtSecurityScheme = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Description = "JWT auth using Bearer scheme. Paste **only** the token below.",
+
+        Reference = new Microsoft.OpenApi.Models.OpenApiReference
+        {
+            Id = "Bearer",
+            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme
+        }
+    };
+
+    c.AddSecurityDefinition("Bearer", jwtSecurityScheme);
+
+    // Require Bearer token for all operations (you can remove if you prefer per-endpoint)
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        { jwtSecurityScheme, Array.Empty<string>() }
+    });
+
+
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true); // ok if your Swashbuckle version supports the bool
