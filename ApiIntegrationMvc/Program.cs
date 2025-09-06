@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using UserManagement.Sdk;
-using UserManagement.Sdk.Abstractions;
 using UserManagement.Sdk.Extensions;
+using CentralizedLogging.Sdk.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +10,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor(); // required for the above
 
 builder.Services.AddUserManagementSdk();
-
+builder.Services.AddCentralizedLoggingSdk();
 
 
 // Add services to the container.

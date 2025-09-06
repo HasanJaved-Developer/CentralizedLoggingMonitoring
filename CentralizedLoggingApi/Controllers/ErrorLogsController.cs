@@ -67,11 +67,6 @@ namespace CentralizedLoggingApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllErrors()
         {
-            //var errors = await _context.ErrorLogs
-            //    .Include(e => e.Application)
-            //    .OrderByDescending(e => e.LoggedAt)
-            //    .ToListAsync();
-
             var logs = await _context.ErrorLogs
             .Include(e => e.Application)
             .Select(e => new GetAllErrorsResponseModel

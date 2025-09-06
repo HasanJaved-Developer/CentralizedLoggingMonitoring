@@ -1,16 +1,17 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CentralizedLogging.Sdk.Abstractions;
+using CentralizedLogging.Sdk.Auth;
+using CentralizedLogging.Sdk.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Polly;
-using CentralizedLogging.Sdk.Abstractions;
-using CentralizedLogging.Sdk.Configuration;
 
 
 namespace CentralizedLogging.Sdk.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddUserManagementSdk(
+        public static IServiceCollection AddCentralizedLoggingSdk(
             this IServiceCollection services,
             Action<CentralizedLoggingOptions>? configure = null)
         {
@@ -24,7 +25,14 @@ namespace CentralizedLogging.Sdk.Extensions
             if (configure is not null)
                 services.PostConfigure(configure);
 
-           
+            // Delegating handler MUST be transient
+            services.AddTransient<BearerTokenHandler>();
+
+            // Register the token provider (memory-based)
+            services.AddScoped<IAccessTokenProvider, MemoryCacheAccessTokenProvider>();
+
+
+
             // The Typed client
             services.AddHttpClient<ICentralizedLoggingClient, CentralizedLoggingClient>((sp, http) =>
             {
@@ -34,7 +42,8 @@ namespace CentralizedLogging.Sdk.Extensions
 
                 http.BaseAddress = opts.BaseAddress;
                 http.Timeout = opts.Timeout;
-            })            
+            })
+            .AddHttpMessageHandler<BearerTokenHandler>()
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 // If you need custom certs, proxies, cookies, etc.
