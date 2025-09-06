@@ -31,3 +31,166 @@ body {
 }
 
 
+/* Grid that prevents sidebar divider from entering the footer */
+.app-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: auto 1fr auto; /* header | content | footer */
+    grid-template-areas:
+        "header header"
+        "sidebar main"
+        "footer footer";
+    min-height: 100dvh;
+}
+
+.app-header {
+    grid-area: header;
+}
+
+.app-sidebar {
+    grid-area: sidebar;
+    padding: 1rem .75rem;
+    background: linear-gradient(135deg,#f8f9fa,#f1f3f4);
+}
+
+.app-main {
+    grid-area: main;
+    padding: 1rem;
+}
+
+.app-footer {
+    grid-area: footer;
+    padding: .5rem 1rem;
+    background: #f8f9fa;
+}
+
+
+.app-sidebar {
+    background: linear-gradient(135deg, #f8f9fa, #f1f3f4); /* light gray gradient */
+    padding: 1rem .75rem;
+    
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    /* remove vertical line */
+    border-right: none;
+    /* scrollable, but scrollbar hidden */
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+}
+
+    .app-sidebar::-webkit-scrollbar {
+        display: none; /* Chrome, Edge, Safari */
+    }
+
+/* Add line at the top of MAIN so it doesn't run under the sidebar */
+.app-main {
+    border-top: 1px solid #dee2e6;
+}
+
+/* Remove line from footer */
+.app-footer {
+    border-top: none;
+}
+
+/* Optional: if you want some spacing above content after the line */
+.app-main {
+    padding-top: 1rem;
+}
+
+/* optional: keep sidebar sticky within the content row only */
+@media (min-width: 768px) {
+    .app-sidebar {
+        position: sticky;
+        top: 0;
+        max-height: calc(100dvh - 0px);
+        overflow-y: auto;        
+    }
+}
+
+/* small cosmetics */
+.sidebar-heading {
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: #6c757d;
+    text-transform: uppercase;
+    margin: .25rem .5rem;
+}
+
+/* Accordion buttons */
+.app-sidebar .accordion-button {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+    .app-sidebar .accordion-button:not(.collapsed) {
+        background-color: #e2e2e2; /* slightly darker when open */
+        color: #000;
+    }
+
+/* category headings */
+.app-sidebar .nav-heading {
+    font-size: .9rem;
+    font-weight: 600;
+    color: #343a40;
+    margin-top: 1rem;
+    margin-bottom: .25rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+
+/* module links */
+.app-sidebar .nav-link {
+    font-size: .875rem;
+    color: #333;
+    padding: .25rem 0 .25rem 1.25rem;
+    display: block;
+    text-decoration: none;
+}
+
+    .app-sidebar .nav-link:hover {
+        color: #0d6efd;
+        background: transparent;
+    }
+
+    .app-sidebar .nav-link.active {
+        color: #0d6efd;
+        font-weight: 500;
+    }
+
+/* divider lines */
+.app-sidebar hr {
+    margin: .75rem 0;
+    color: #dee2e6;
+}
+
+:root {
+    --app-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    --app-text: #333; /* default text */
+    --app-muted: #6c757d; /* muted text */
+    --app-base-size: 15px; /* tweak once, affects all */
+}
+
+html, body,
+.app-header, .app-footer, .app-sidebar, .app-main {
+    font-family: var(--app-font);
+    color: var(--app-text);
+    font-size: var(--app-base-size);
+    line-height: 1.45;
+}
+
+    .app-header .navbar-brand,
+    .app-sidebar .nav-heading,
+    .app-footer {
+        font-weight: 600;
+    }
+
+    /* Sidebar fine-tuning so it matches header/footer tone */
+    .app-sidebar .nav-link {
+        font-weight: 400;
+    }
+
+        .app-sidebar .nav-link.active {
+            font-weight: 600;
+        }

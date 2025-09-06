@@ -1,5 +1,6 @@
 using ApiIntegrationMvc.Areas.Account.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
@@ -18,26 +19,11 @@ namespace ApiIntegrationMvc.Areas.Home.Controllers
 
         public HomeController(IAccessTokenProvider tokens) => _tokens = tokens;
        
-
         public async Task<IActionResult> Index(CancellationToken ct)
         {            
-            var token = await _tokens.GetAccessTokenAsync(ct);
-
-            var handler = new JwtSecurityTokenHandler();
-            var jwt = handler.ReadJwtToken(token);
-            IEnumerable<Claim> claims = jwt.Claims;
-            var list = claims.Where(c => c.Type == "categories").Select(c => c.Value).ToList();
-            if (list.Count == 1)
-            {
-                var categories = JsonSerializer.Deserialize<List<Category>>(list[0]);
-                ViewBag.Categories = categories;
-            }
-            else
-            {
-                ViewBag.Categories = new List<Category>();
-            }
             return View();
         }
+
 
         public IActionResult Privacy()
         {
@@ -45,6 +31,8 @@ namespace ApiIntegrationMvc.Areas.Home.Controllers
         }
 
 
+
+       
 
     }
 }

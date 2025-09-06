@@ -144,7 +144,7 @@ namespace UserManagementApi.Controllers
                             .OrderBy(f => f.Code)
                             .ToList()
                       ))
-                      .OrderBy(m => m.Name)
+                      .OrderBy(m => m.Id)
                       .ToList()
                 ))
                 .OrderBy(c => c.Name)
