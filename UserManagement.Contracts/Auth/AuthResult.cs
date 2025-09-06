@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace UserManagement.Contracts.Auth
-{
-    public sealed record AuthResult(
-    string AccessToken,
-    int ExpiresInSeconds,
-    string? TokenType = "Bearer");
+{    
+    public record AuthResponse(
+      int UserId,
+      string UserName,
+      string Token,
+      DateTime ExpiresAtUtc 
+  );
 }

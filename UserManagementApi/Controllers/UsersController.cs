@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -7,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using UserManagement.Contracts.Auth;
 using UserManagementApi.Data;
 using UserManagementApi.DTO;
 using UserManagementApi.DTO.Auth;
@@ -29,10 +29,26 @@ namespace UserManagementApi.Controllers
         }
         // --------- NEW: POST /api/users/authenticate ----------
         [HttpPost("authenticate")]
+        [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+
         public async Task<ActionResult<AuthResponse>> Authenticate([FromBody] DTO.LoginRequest req)
         {
             if (string.IsNullOrWhiteSpace(req.UserName) || string.IsNullOrWhiteSpace(req.Password))
-                return BadRequest("Username and password are required.");
+            {
+                return ValidationProblem(new ValidationProblemDetails
+                {
+                    Title = "Validation error",
+                    Detail = "Username and password are required.",
+                    Status = StatusCodes.Status400BadRequest,
+                    Errors = new Dictionary<string, string[]>
+                    {
+                        ["userName"] = new[] { "Required" },
+                        ["password"] = new[] { "Required" }
+                    }
+                });
+            }
 
             var user = await _db.Users
                 .Include(u => u.UserRoles)
@@ -40,10 +56,15 @@ namespace UserManagementApi.Controllers
                 .FirstOrDefaultAsync(u => u.UserName == req.UserName);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.Password))
-            {
-                return Unauthorized("Invalid credentials.");
+            {                
+                return Unauthorized(new ProblemDetails
+                {
+                    Title = "Invalid credentials",
+                    Detail = "Username or password is incorrect.",
+                    Status = StatusCodes.Status401Unauthorized
+                });
             }
-
+        
    
             var dto = await BuildPermissionsForUser(user.Id);
                         
@@ -52,7 +73,7 @@ namespace UserManagementApi.Controllers
             // Get the same permissions tree you already expose
             var permissions = await BuildPermissionsForUser(user.Id);
 
-            return Ok(new AuthResponse(user.Id, user.UserName, token, expiresAtUtc, permissions));
+            return Ok(new AuthResponse(user.Id, user.UserName, token, expiresAtUtc));
         }
 
         // --------- (Existing) GET /api/users/{userId}/permissions ----------

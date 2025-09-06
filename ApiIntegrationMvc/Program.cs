@@ -7,11 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add MemoryCache globally
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor(); // required for the above
 
 builder.Services.AddUserManagementSdk();
 
-// Register the token provider (memory-based)
-builder.Services.AddScoped<IAccessTokenProvider, MemoryCacheAccessTokenProvider>();
 
 
 // Add services to the container.

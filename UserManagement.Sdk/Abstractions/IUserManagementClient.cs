@@ -9,6 +9,6 @@ namespace UserManagement.Sdk.Abstractions
 {
     public interface IUserManagementClient
     {
-        Task<AuthResult?> LoginAsync(LoginRequest request, CancellationToken ct = default);
+        Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken ct = default);
     }
 }

@@ -10,4 +10,8 @@
     <ProjectReference Include="..\UserManagement.Sdk\UserManagement.Sdk.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Areas\Home\Models\" />
+  </ItemGroup>
+
 </Project>
