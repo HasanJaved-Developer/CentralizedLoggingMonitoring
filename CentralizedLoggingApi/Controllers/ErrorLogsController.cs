@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CentralizedLogging.Contracts.Models;
+using CentralizedLogging.Contracts.DTO;
 
 namespace CentralizedLoggingApi.Controllers
 {
@@ -18,8 +19,7 @@ namespace CentralizedLoggingApi.Controllers
         {
             _context = context;
         }
-
-        [Authorize]
+                
         // POST api/errorlogs
         [HttpPost]
         public async Task<IActionResult> LogError([FromBody] CreateErrorLogDto errorLogDto)
@@ -29,7 +29,6 @@ namespace CentralizedLoggingApi.Controllers
 
             // Ensure LoggedAt is set
             
-
             var errorLog = new ErrorLog
             {
                 ApplicationId = errorLogDto.ApplicationId,

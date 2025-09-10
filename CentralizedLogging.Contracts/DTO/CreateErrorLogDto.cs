@@ -1,4 +1,4 @@
-﻿namespace CentralizedLoggingApi.DTO
+﻿namespace CentralizedLogging.Contracts.DTO
 {
     public class CreateErrorLogDto
     {

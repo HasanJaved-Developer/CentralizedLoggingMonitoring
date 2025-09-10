@@ -1,4 +1,6 @@
 ﻿using ApiIntegrationMvc.Areas.Account.Models;
+using CentralizedLogging.Contracts.DTO;
+using CentralizedLogging.Sdk.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +15,11 @@ namespace ApiIntegrationMvc.Areas.Account.Controllers
     public class LoginController : Controller
     {
         private readonly IUserManagementClient _users;
-        private readonly IAccessTokenProvider _cache;
+        private readonly UserManagement.Sdk.Abstractions.IAccessTokenProvider _cache;
         private readonly IHttpContextAccessor _http;
-        public LoginController(IUserManagementClient users, IAccessTokenProvider cache, IHttpContextAccessor http) => (_users, _cache, _http) = (users, cache, http);
+        private readonly ICentralizedLoggingClient _centralizedlogs;
+        public LoginController(IUserManagementClient users, ICentralizedLoggingClient centralizedlogs,
+            UserManagement.Sdk.Abstractions.IAccessTokenProvider cache, IHttpContextAccessor http) => (_users, _centralizedlogs, _cache, _http) = (users, centralizedlogs, cache, http);
 
         [HttpGet]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
@@ -74,7 +78,8 @@ namespace ApiIntegrationMvc.Areas.Account.Controllers
                 return RedirectToAction("Index", "Home", new { area = "Home" });
             }
             catch (HttpRequestException hx)
-            {
+            {   
+                await _centralizedlogs.LogErrorAsync(BuildDto(hx, requestPath: "GET api/users"), ct);
                 TempData["Error"] = hx.Message;
                 return RedirectToAction(nameof(Index));   // ← PRG on failure             
             }
@@ -88,6 +93,21 @@ namespace ApiIntegrationMvc.Areas.Account.Controllers
                 TempData["Error"] = "Internal Error. Please contact administrator.";
                 return RedirectToAction(nameof(Index));   // ← PRG on failure             
             }
+        }
+
+        private CreateErrorLogDto BuildDto(HttpRequestException ex, string requestPath)
+        {
+            //=>
+            CreateErrorLogDto obj = new CreateErrorLogDto
+           {
+               ApplicationId = 4,
+               Severity = "Error",
+               Message = ex.Message,
+               StackTrace = ex.ToString(),
+               Source = ex.Source,
+               RequestId = Guid.NewGuid().ToString(), // or pass one down            
+           };
+            return obj;
         }
 
         private static string? Claim(ClaimsPrincipal? u, string t) => u?.FindFirst(t)?.Value;

@@ -20,7 +20,8 @@ namespace CentralizedLoggingApi
                 context.Applications.AddRange(
                     new Application { Name = "Payment Service", Environment = "Production", ApiKey = Guid.NewGuid().ToString() },
                     new Application { Name = "User Management", Environment = "Staging", ApiKey = Guid.NewGuid().ToString() },
-                    new Application { Name = "Reporting API", Environment = "Development", ApiKey = Guid.NewGuid().ToString() }
+                    new Application { Name = "Reporting API", Environment = "Development", ApiKey = Guid.NewGuid().ToString() },
+                    new Application { Name = "Integration Portal", Environment = "Development", ApiKey = Guid.NewGuid().ToString() }
                 );
                 context.SaveChanges();
             }
