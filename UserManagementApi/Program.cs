@@ -7,6 +7,7 @@ using System.Text;
 using UserManagementApi;
 using UserManagementApi.Data;
 using UserManagementApi.DTO.Auth;
+using UserManagementApi.Infrastructure;
 using UserManagementApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -135,6 +136,19 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Seed sample data
-DbSeeder.Seed(app.Services);
+//DbSeeder.Seed(app.Services);
+
+const string GlobalLock = "IMIS_GLOBAL_MIGRATE_SEED"; // <-- same string used in BOTH APIs
+await app.MigrateAndSeedWithSqlLockAsync<AppDbContext>(
+    connectionStringName: "MasterConnection",           // change if your name differs
+    globalLockName: GlobalLock,
+    seedAsync: async (sp, ct) =>
+    {
+        // IMPORTANT: remove Migrate() inside your seeder
+        // Old: DbSeeder.Seed(IServiceProvider) (sync). Wrap to awaitable:
+        DbSeeder.Seed(sp);
+        await Task.CompletedTask;
+    });
+
 
 app.Run();

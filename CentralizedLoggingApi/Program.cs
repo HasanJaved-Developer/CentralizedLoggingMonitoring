@@ -1,6 +1,7 @@
 using CentralizedLoggingApi;
 using CentralizedLoggingApi.Data;
 using CentralizedLoggingApi.DTO.Auth;
+using CentralizedLoggingApi.Infrastructure;
 using CentralizedLoggingApi.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -134,12 +135,20 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-
-
-
 app.MapControllers();
 
-// Seed sample data
-DbSeeder.Seed(app.Services);
+
+const string GlobalLock = "IMIS_GLOBAL_MIGRATE_SEED"; // <-- same string used in BOTH APIs
+await app.MigrateAndSeedWithSqlLockAsync<LoggingDbContext>(
+    connectionStringName: "MasterConnection",           // change if your name differs
+    globalLockName: GlobalLock,
+    seedAsync: async (sp, ct) =>
+    {
+        // IMPORTANT: remove Migrate() inside your seeder
+        // Old: DbSeeder.Seed(IServiceProvider) (sync). Wrap to awaitable:
+        DbSeeder.Seed(sp);
+        await Task.CompletedTask;
+    });
+
 
 app.Run();
