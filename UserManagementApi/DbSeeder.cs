@@ -12,9 +12,6 @@ namespace UserManagementApi
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            // Apply pending migrations
-            context.Database.Migrate();
-
             // Only seed once
             if (context.Users.Any() || context.Roles.Any() || context.Categories.Any())
                 return;
