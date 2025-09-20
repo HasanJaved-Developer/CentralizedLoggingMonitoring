@@ -19,6 +19,8 @@
 /* Single baseline only (avoid duplicates) */
 html {
     font-size: var(--app-base-size);
+    height: 100%;
+    margin: 0;
 }
 
 @media (min-width:768px) {
@@ -32,7 +34,7 @@ body {
     font-size: 1rem; /* everything scales from html */
     line-height: 1.5;
     color: var(--app-text);
-    min-height: 100%;
+    height: 100%;
     margin: 0; /* remove page jump; footer spacing handled in layout areas */
 }
 
@@ -62,14 +64,14 @@ body {
    App Layout Grid
    ========================= */
 .app-grid {
-    display: grid;
-    grid-template-columns: 280px 1fr;
+    display: grid;    
     grid-template-rows: auto 1fr auto; /* header | content | footer */
     grid-template-areas:
         "header header"
         "sidebar main"
         "footer footer";
-    min-height: 100dvh;
+    height: 100svh; /* or 100vh; ensures fixed viewport height */
+    overflow: hidden; /* KEY: stop page scroll; inner cells will scroll */
 }
 
 .app-header {
@@ -80,7 +82,9 @@ body {
     grid-area: sidebar;
     padding: 1rem .75rem;
     background: linear-gradient(135deg,#f8f9fa,#f1f3f4);
-    overflow-y: auto;
+    min-height: 0; /* allow them to shrink inside the 1fr row */
+    min-width: 0; /* avoid horizontal overflow pushing layout */
+    overflow: auto; /* scroll here, not the page */
     scrollbar-width: none; /* Firefox */
     border-right: none;
     /* Typography: sidebar slightly compact but consistent */
@@ -89,14 +93,43 @@ body {
     line-height: 1.45;
 }
 
-    .app-sidebar::-webkit-scrollbar {
-        display: none;
+/* Collapse behavior on desktop */
+@media (min-width: 768px) {
+
+    .app-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;    
+        grid-template-areas:
+            "header header"
+            "sidebar main"
+            "footer footer";    
     }
+
+
+    .app-grid.sidebar-collapsed {
+        grid-template-columns: 0 1fr; /* hide the first column */
+    }
+
+    .app-grid.sidebar-collapsed .app-sidebar {
+        display: none; /* make sure it's gone */
+    }
+}
+/* (Optional) smoother width change for main area */
+.app-grid {
+    transition: grid-template-columns .15s ease;
+}
+
+.app-sidebar::-webkit-scrollbar {
+    display: none;
+}
 
 .app-main {
     grid-area: main;
-    padding: 1rem;
-    border-top: 1px solid #dee2e6; /* prevents content running under sidebar on some layouts */
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
+    grid-area: main;
+    padding: 1rem;    
     padding-top: 1rem;
     font: inherit; /* inherit same font as body */
 }
@@ -116,7 +149,8 @@ body {
     .app-sidebar {
         position: sticky;
         top: 0;
-        max-height: 100dvh;
+        max-height: 100%;
+        overflow-y: auto; /* sidebar may scroll independently */
     }
 }
 
@@ -284,3 +318,97 @@ h3 {
 .table-dark {
     background-color: var(--brand-dark) !important;
 }
+
+/* Hide table until DataTables finishes */
+table.dataTable-pending {
+    visibility: hidden;
+}
+
+/* Smooth change when collapsing */
+.app-grid {
+    transition: grid-template-columns .2s ease;
+}
+
+/* Default desktop: sidebar + main */
+@media (min-width:768px) {
+    .app-grid {
+        grid-template-columns: 280px 1fr;
+    }
+}
+
+/* Collapsed desktop: hide sidebar, let main take full width */
+@media (min-width:768px) {
+    .app-grid.sidebar-collapsed {
+        grid-template-columns: 0 1fr;
+    }
+
+        .app-grid.sidebar-collapsed .app-sidebar {
+            display: none !important;
+        }
+    /* beats d-md-block!important */
+}
+
+/* Keep header above content if needed */
+.app-header {
+    z-index: 1030;
+}
+
+/* Mobile: collapse grid to a single column */
+@media (max-width: 767.98px) {
+    .app-grid {
+        grid-template-columns: 1fr !important;
+        grid-template-areas:
+            "header"
+            "main"
+            "footer"; /* no sidebar row on mobile */
+    }
+
+    /* Ensure main spans the only column (defensive) */
+    .app-main {
+        grid-column: 1 / -1;
+    }
+
+    /* Ensure the offcanvas copy of the menu stays visible */
+    .offcanvas .app-sidebar {
+        display: block !important;
+        overflow: auto;
+        max-height: calc(100vh - 56px); /* tweak if your header height differs */
+    }
+
+    /* Hide the static sidebar track completely on mobile */
+    #appSidebar,
+    .app-sidebar {
+        display: none !important; /* d-none d-md-block does this too, this is just belt & braces */
+    }
+           
+}
+
+/* Compact, icon-only button */
+.btn-icon {
+    --icon-size: 2.25rem; /* tweak: 2.0–2.5rem */
+    width: var(--icon-size);
+    height: var(--icon-size);
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: .5rem;
+    background: transparent;
+}
+
+    .btn-icon i {
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+    /* icon size */
+
+    /* Subtle hover/focus */
+    .btn-icon:hover {
+        background: rgba(0,0,0,.06);
+    }
+
+    .btn-icon:focus-visible {
+        outline: 2px solid rgba(13,110,253,.6);
+        outline-offset: 2px;
+    }
