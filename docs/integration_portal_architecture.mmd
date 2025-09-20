@@ -1,0 +1,53 @@
+flowchart TB
+  %% --- Clients ---
+  Portal[💻 Integration Portal<br/>]:::client
+  
+
+  %% --- SDKs ---
+  UM_SDK[📦 UserManagement.SDK]:::sdk
+  LOG_SDK[📦 CentralizedLogging.SDK]:::sdk
+
+  %% --- APIs ---
+  UM_API[🔑 User Management API]:::api
+  LOG_API[📝 Centralized Logging API]:::api
+
+  %% --- Contracts ---
+  UM_CONTRACTS[📄 UserManagement.Contracts]:::contract
+  LOG_CONTRACTS[📄 Logging.Contracts]:::contract
+
+  %% --- Databases ---
+  UDB[(🗄️ User DB)]:::db
+  LDB[(🗄️ Logging DB)]:::db
+
+  %% --- Flows ---
+  %% Clients use SDKs
+  Portal --> UM_SDK --> UM_API
+  Portal --> LOG_SDK --> LOG_API
+  
+  %% SDKs depend on contracts
+  UM_SDK -.-> UM_CONTRACTS
+  LOG_SDK -.-> LOG_CONTRACTS
+
+  %% APIs also follow contracts
+  UM_API -.-> UM_CONTRACTS
+  LOG_API -.-> LOG_CONTRACTS
+
+  %% APIs use DBs
+  UM_API --> UDB
+  LOG_API --> LDB
+
+  %% --- Legend ---
+  subgraph Legend
+    L1[💻 Client]:::client
+    L2[📦 SDK]:::sdk
+    L3[🔑 API]:::api
+    L4[📄 Contract]:::contract
+    L5[(🗄️ DB)]:::db
+  end
+
+  %% --- Styles ---
+  classDef client fill:#f0f8ff,stroke:#007acc,stroke-width:2px,color:#000,font-weight:bold;
+  classDef sdk fill:#fff5e6,stroke:#ff9900,stroke-width:2px,color:#000;
+  classDef api fill:#e6ffe6,stroke:#339933,stroke-width:2px,color:#000;
+  classDef contract fill:#f9f9f9,stroke:#555555,stroke-dasharray: 3 3,color:#000;
+  classDef db fill:#fff0f5,stroke:#cc0066,stroke-width:2px,color:#000;
