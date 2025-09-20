@@ -4,9 +4,9 @@ A centralized error logging and monitoring API built with **.NET 9**, Entity Fra
 
 Each phase is preserved in its own branch, but this repository now focuses on the above highlighted phases i.e. the final **Integration Portal, a Microservices influenced architechture (Single Service Database Pattern)**.
 
----## 
+---
 
-## # 🖥️ Integration Portal
+## 🖥️ Integration Portal
 
 ## 🌟 What It Is
 
