@@ -51,21 +51,21 @@ A **.NET 9 MVC Web App** that unifies multiple APIs (**User Management and Loggi
 
 ### 📂 Home & Sidebar
 
-![Sidebar Tree](D:\repos\CentralizedLoggingMonitoring\docs\screenshots\home%20and%20sidebar.png)
+![Sidebar Tree](docs/screenshots/home%20and%20sidebar.png)
 
 ### 📊 Logs (Admin View)
 
-![Logs Page](D:\repos\CentralizedLoggingMonitoring\docs\screenshots\logs%20view.png)
+![Logs Page](docs/screenshots/logs%20view.png)
 
 ## 📡 API Swagger UI
 
 **User Management API**
 
-![User API Swagger](D:\repos\CentralizedLoggingMonitoring\docs\screenshots\usermanagementapi.png)
+![User API Swagger](docs/screenshots/usermanagementapi.png)
 
 **Centralized Error Logging API**
 
-![Logging API Swagger](D:\repos\CentralizedLoggingMonitoring\docs\screenshots\centralizedloggingapi.png)
+![Logging API Swagger](docs/screenshots/centralizedloggingapi.png)
 
 ## ⚙️ Implementation Details
 
