@@ -1,6 +1,7 @@
 ﻿using CentralizedLoggingApi.Data;
 using CentralizedLoggingApi.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace CentralizedLoggingApi
 {
@@ -10,17 +11,15 @@ namespace CentralizedLoggingApi
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<LoggingDbContext>();
-
-            // Run migrations
-            context.Database.Migrate();
-
+            
             // Seed Applications
             if (!context.Applications.Any())
             {
                 context.Applications.AddRange(
                     new Application { Name = "Payment Service", Environment = "Production", ApiKey = Guid.NewGuid().ToString() },
                     new Application { Name = "User Management", Environment = "Staging", ApiKey = Guid.NewGuid().ToString() },
-                    new Application { Name = "Reporting API", Environment = "Development", ApiKey = Guid.NewGuid().ToString() }
+                    new Application { Name = "Reporting API", Environment = "Development", ApiKey = Guid.NewGuid().ToString() },
+                    new Application { Name = "Integration Portal", Environment = "Development", ApiKey = Guid.NewGuid().ToString() }
                 );
                 context.SaveChanges();
             }

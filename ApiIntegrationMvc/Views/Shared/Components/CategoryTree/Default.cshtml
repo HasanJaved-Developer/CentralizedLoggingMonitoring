@@ -1,0 +1,50 @@
+﻿@using UserManagementApi.Contracts.Models
+@model IReadOnlyList<Category>
+
+<nav class="app-sidebar">
+    <!-- Top brand or logo -->
+    <div class="d-flex align-items-center mb-2">
+        <i class="bi bi-grid-fill fs-5 me-2"></i>
+        <span class="fw-bold">IPSys</span>
+    </div>
+    <hr />
+
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        var cat = Model[i];
+        var collapseId = $"collapse-{cat.Id}";
+        var expanded = i == 0 ? "true" : "false";
+        var show = i == 0 ? "show" : "";
+
+        <div>
+            <div class="nav-heading"
+                 data-bs-toggle="collapse"
+                 data-bs-target="#@collapseId"
+                 aria-expanded="@expanded"
+                 aria-controls="@collapseId">
+                <i class="bi bi-chevron-down me-1"></i>@cat.Name
+            </div>
+            <div class="collapse @show" id="@collapseId">
+                <ul class="nav flex-column mb-2">
+                    @foreach (var m in cat.Modules)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-area="@m.Area"
+                               asp-controller="@m.Controller"
+                               asp-action="@m.Action">
+                                @m.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        @* Divider between groups *@
+        @if (i < Model.Count - 1)
+        {
+            <hr />
+        }
+    }
+</nav>

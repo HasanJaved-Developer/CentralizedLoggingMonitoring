@@ -1,0 +1,414 @@
+/* =========================
+   Global Typography & Scale
+   ========================= */
+:root {
+    --app-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    --app-text: #333;
+    --app-muted: #6c757d;
+    /* Base size: 15px on small screens, 16px >=768px (Bootstrap md) */
+    --app-base-size: 15px;
+    --app-base-size-md: 16px;
+    /* Component scales (tweak here if needed) */
+    --sidebar-scale: 0.95; /* 95% of body */
+    --heading-1: 1.75rem;
+    --heading-2: 1.5rem;
+    --heading-3: 1.25rem;
+    --table-scale: 0.95; /* 95% of body */
+}
+
+/* Single baseline only (avoid duplicates) */
+html {
+    font-size: var(--app-base-size);
+    height: 100%;
+    margin: 0;
+}
+
+@media (min-width:768px) {
+    html {
+        font-size: var(--app-base-size-md);
+    }
+}
+
+body {
+    font-family: var(--app-font);
+    font-size: 1rem; /* everything scales from html */
+    line-height: 1.5;
+    color: var(--app-text);
+    height: 100%;
+    margin: 0; /* remove page jump; footer spacing handled in layout areas */
+}
+
+/* Focus ring (kept from your original) */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem #fff, 0 0 0 0.25rem #258cfb;
+}
+
+/* Floating placeholders (kept) */
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--app-muted);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+
+/* =========================
+   App Layout Grid
+   ========================= */
+.app-grid {
+    display: grid;    
+    grid-template-rows: auto 1fr auto; /* header | content | footer */
+    grid-template-areas:
+        "header header"
+        "sidebar main"
+        "footer footer";
+    height: 100svh; /* or 100vh; ensures fixed viewport height */
+    overflow: hidden; /* KEY: stop page scroll; inner cells will scroll */
+}
+
+.app-header {
+    grid-area: header;
+}
+
+.app-sidebar {
+    grid-area: sidebar;
+    padding: 1rem .75rem;
+    background: linear-gradient(135deg,#f8f9fa,#f1f3f4);
+    min-height: 0; /* allow them to shrink inside the 1fr row */
+    min-width: 0; /* avoid horizontal overflow pushing layout */
+    overflow: auto; /* scroll here, not the page */
+    scrollbar-width: none; /* Firefox */
+    border-right: none;
+    /* Typography: sidebar slightly compact but consistent */
+    font-family: var(--app-font);
+    font-size: calc(1rem * var(--sidebar-scale));
+    line-height: 1.45;
+}
+
+/* Collapse behavior on desktop */
+@media (min-width: 768px) {
+
+    .app-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;    
+        grid-template-areas:
+            "header header"
+            "sidebar main"
+            "footer footer";    
+    }
+
+
+    .app-grid.sidebar-collapsed {
+        grid-template-columns: 0 1fr; /* hide the first column */
+    }
+
+    .app-grid.sidebar-collapsed .app-sidebar {
+        display: none; /* make sure it's gone */
+    }
+}
+/* (Optional) smoother width change for main area */
+.app-grid {
+    transition: grid-template-columns .15s ease;
+}
+
+.app-sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.app-main {
+    grid-area: main;
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
+    grid-area: main;
+    padding: 1rem;    
+    padding-top: 1rem;
+    font: inherit; /* inherit same font as body */
+}
+
+.app-footer {
+    grid-area: footer;
+    padding: .5rem 1rem;
+    background: #f8f9fa;
+    font-family: var(--app-font);
+    font-size: 1rem; /* same baseline as body for consistency */
+    line-height: 1.45;
+    border-top: none;
+}
+
+/* Sticky sidebar only on md+ */
+@media (min-width:768px) {
+    .app-sidebar {
+        position: sticky;
+        top: 0;
+        max-height: 100%;
+        overflow-y: auto; /* sidebar may scroll independently */
+    }
+}
+
+/* =========================
+   Sidebar Details
+   ========================= */
+.sidebar-heading {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: var(--app-muted);
+    text-transform: uppercase;
+    margin: .25rem .5rem;
+}
+
+.app-sidebar .accordion-button {
+    background-color: #f5f5f5;
+    color: #333;
+    font-size: inherit; /* keep consistent */
+}
+
+    .app-sidebar .accordion-button:not(.collapsed) {
+        background-color: #e2e2e2;
+        color: #000;
+    }
+
+.app-sidebar .nav-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #343a40;
+    margin: 1rem 0 .25rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.app-sidebar .nav-link {
+    font-size: 0.95rem;
+    color: #333;
+    padding: .25rem 0 .25rem 1.25rem;
+    display: block;
+    text-decoration: none;
+    font-weight: 400;
+}
+
+    .app-sidebar .nav-link:hover {
+        color: #0d6efd;
+        background: transparent;
+    }
+
+    .app-sidebar .nav-link.active {
+        color: #0d6efd;
+        font-weight: 600;
+    }
+
+.app-sidebar hr {
+    margin: .75rem 0;
+    color: #dee2e6;
+}
+
+
+/* =========================
+   Headings (App-wide)
+   ========================= */
+h1 {
+    font-size: var(--heading-1);
+    font-weight: 600;
+}
+
+h2 {
+    font-size: var(--heading-2);
+    font-weight: 500;
+}
+
+h3 {
+    font-size: var(--heading-3);
+    font-weight: 500;
+}
+
+/* If a page (e.g., login) wants bigger hero style, add a class there:
+   .page-hero h1 { font-size: clamp(1.75rem, 2.5vw + 1rem, 2rem); } */
+
+
+/* =========================
+   Tables (Bootstrap + DataTables friendly)
+   ========================= */
+/* Slightly compact tables everywhere, but still readable */
+.table {
+    font-size: calc(1rem * var(--table-scale));
+}
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+    .table thead th {
+        font-weight: 600;
+    }
+
+/* DataTables common labels */
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_info {
+    font-size: calc(1rem * var(--table-scale));
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    font-size: calc(1rem * var(--table-scale));
+}
+
+/* Optional: super-compact variant you can add to specific tables
+   <table class="table table-sm table-compact"> */
+.table-compact {
+    font-size: 0.9rem;
+}
+
+
+/* =========================
+   Navbar / Footer Emphasis
+   ========================= */
+.app-header .navbar-brand,
+.app-footer {
+    font-weight: 600;
+}
+
+/* Layout-friendly content wrapper (works with your .app-grid) */
+.app-content {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Tighten table density to match dashboards */
+.table td, .table th {
+    vertical-align: middle;
+}
+
+/* Nice one-line truncation for the Message column */
+.truncate-1 {
+    max-width: 520px; /* adjust to your center content width */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Make <pre> blocks wrap nicely in the modal */
+.pre-wrap {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Bring cards closer to your login/home look */
+.card {
+    border-radius: 1rem;
+}
+
+.card-header {
+    border-bottom: 0;
+}
+
+/* Optional: unify table header with your brand color via CSS variable */
+:root {
+    --brand-dark: #1f2a44; /* set this to your navbar/brand color */
+}
+
+.table-dark {
+    background-color: var(--brand-dark) !important;
+}
+
+/* Hide table until DataTables finishes */
+table.dataTable-pending {
+    visibility: hidden;
+}
+
+/* Smooth change when collapsing */
+.app-grid {
+    transition: grid-template-columns .2s ease;
+}
+
+/* Default desktop: sidebar + main */
+@media (min-width:768px) {
+    .app-grid {
+        grid-template-columns: 280px 1fr;
+    }
+}
+
+/* Collapsed desktop: hide sidebar, let main take full width */
+@media (min-width:768px) {
+    .app-grid.sidebar-collapsed {
+        grid-template-columns: 0 1fr;
+    }
+
+        .app-grid.sidebar-collapsed .app-sidebar {
+            display: none !important;
+        }
+    /* beats d-md-block!important */
+}
+
+/* Keep header above content if needed */
+.app-header {
+    z-index: 1030;
+}
+
+/* Mobile: collapse grid to a single column */
+@media (max-width: 767.98px) {
+    .app-grid {
+        grid-template-columns: 1fr !important;
+        grid-template-areas:
+            "header"
+            "main"
+            "footer"; /* no sidebar row on mobile */
+    }
+
+    /* Ensure main spans the only column (defensive) */
+    .app-main {
+        grid-column: 1 / -1;
+    }
+
+    /* Ensure the offcanvas copy of the menu stays visible */
+    .offcanvas .app-sidebar {
+        display: block !important;
+        overflow: auto;
+        max-height: calc(100vh - 56px); /* tweak if your header height differs */
+    }
+
+    /* Hide the static sidebar track completely on mobile */
+    #appSidebar,
+    .app-sidebar {
+        display: none !important; /* d-none d-md-block does this too, this is just belt & braces */
+    }
+           
+}
+
+/* Compact, icon-only button */
+.btn-icon {
+    --icon-size: 2.25rem; /* tweak: 2.0–2.5rem */
+    width: var(--icon-size);
+    height: var(--icon-size);
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: .5rem;
+    background: transparent;
+}
+
+    .btn-icon i {
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+    /* icon size */
+
+    /* Subtle hover/focus */
+    .btn-icon:hover {
+        background: rgba(0,0,0,.06);
+    }
+
+    .btn-icon:focus-visible {
+        outline: 2px solid rgba(13,110,253,.6);
+        outline-offset: 2px;
+    }

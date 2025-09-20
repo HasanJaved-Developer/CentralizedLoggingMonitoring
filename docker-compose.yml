@@ -1,6 +1,8 @@
 services:
   api:
-    build: ./CentralizedLoggingApi
+    build:
+      context: .                               
+      dockerfile: CentralizedLoggingApi/Dockerfile
     container_name: centralized_logging_api
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
@@ -8,12 +10,16 @@ services:
       - "5000:8080"   # Map host:container for HTTP
       - "5001:8081"   # Map host:container for HTTPS (if your app supports it)   
     depends_on:
-      - db       
+      db:
+        condition: service_healthy
+    
     volumes:
       - ./CentralizedLoggingApi/logs:/app/logs   
 
   userapi:
-    build: ./UserManagementApi
+    build:
+      context: .
+      dockerfile: UserManagementApi/Dockerfile
     container_name: user_management_api
     environment:
       - ASPNETCORE_ENVIRONMENT=Production            
@@ -21,9 +27,30 @@ services:
       - "6000:8080"   # Host 6000 -> container 8080 (HTTP)
       # - "6001:8081" # Optional HTTPS mapping if your app listens on 8081
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    
     volumes:
       - ./UserManagementApi/logs:/app/logs    
+
+  web:    
+    build:
+      context: .
+      dockerfile: ApiIntegrationMvc/Dockerfile
+    container_name: api_integration_web
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      # Point the web app to APIs by service name (DNS provided by Compose)
+      - Services__CentralizedLogging__BaseUrl=http://api:8080
+      - Services__UserManagement__BaseUrl=http://userapi:8080
+    ports:
+      - "7000:8080"  # browse http://localhost:7000
+    depends_on:
+      api:
+        condition: service_started
+      userapi:
+        condition: service_started
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -34,10 +61,11 @@ services:
     ports:
       - "1433:1433"
     healthcheck:
-        test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Bisp@123", "-Q", "SELECT 1"]
-        interval: 10s
-        retries: 10
-        start_period: 30s            
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P 'Bisp@123' -C -Q \"SELECT 1\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s          
     volumes:
       - sql_data:/var/opt/mssql
 

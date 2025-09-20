@@ -1,15 +1,7 @@
 ﻿namespace UserManagementApi.DTO
 {
     public record LoginRequest(string UserName, string Password);
-
-    public record AuthResponse(
-        int UserId,
-        string UserName,
-        string Token,
-        DateTime ExpiresAtUtc,
-        UserPermissionsDto Permissions // reuse your existing permissions dto
-    );
-
+    
     public record FunctionDto(int Id, string Code, string DisplayName);
     public record ModuleDto(int Id, string Name, string Area, string Controller, string Action, List<FunctionDto> Functions);
     public record CategoryDto(int Id, string Name, List<ModuleDto> Modules);

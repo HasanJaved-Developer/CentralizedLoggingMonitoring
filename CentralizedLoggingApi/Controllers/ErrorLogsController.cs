@@ -1,8 +1,11 @@
 ﻿using CentralizedLoggingApi.Data;
 using CentralizedLoggingApi.DTO;
 using CentralizedLoggingApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using CentralizedLogging.Contracts.Models;
+using CentralizedLogging.Contracts.DTO;
 
 namespace CentralizedLoggingApi.Controllers
 {
@@ -16,7 +19,7 @@ namespace CentralizedLoggingApi.Controllers
         {
             _context = context;
         }
-
+                
         // POST api/errorlogs
         [HttpPost]
         public async Task<IActionResult> LogError([FromBody] CreateErrorLogDto errorLogDto)
@@ -26,7 +29,6 @@ namespace CentralizedLoggingApi.Controllers
 
             // Ensure LoggedAt is set
             
-
             var errorLog = new ErrorLog
             {
                 ApplicationId = errorLogDto.ApplicationId,
@@ -59,16 +61,28 @@ namespace CentralizedLoggingApi.Controllers
             return Ok(error);
         }
 
+        [Authorize]
         // GET api/errorlogs
         [HttpGet]
         public async Task<IActionResult> GetAllErrors()
         {
-            var errors = await _context.ErrorLogs
-                .Include(e => e.Application)
-                .OrderByDescending(e => e.LoggedAt)
-                .ToListAsync();
+            var logs = await _context.ErrorLogs
+            .Include(e => e.Application)
+            .Select(e => new GetAllErrorsResponseModel
+            {
+                Id = e.Id,
+                Severity = e.Severity,
+                Message = e.Message,
+                StackTrace = e.StackTrace,
+                Source = e.Source,
+                UserId = e.UserId,
+                RequestId = e.RequestId,
+                LoggedAt = e.LoggedAt,
+                ApplicationName = e.Application.Name   // navigation property
+            })
+            .ToListAsync();
 
-            return Ok(errors);
+            return Ok(logs);
         }
     }
 }
