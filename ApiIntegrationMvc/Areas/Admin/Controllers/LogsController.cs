@@ -18,7 +18,7 @@ namespace ApiIntegrationMvc.Areas.Admin.Controllers
             var result = await _centralizedlogs.GetAllErrorAsync(ct);
 
   
-            return View(result);
+            return View(result.OrderByDescending(v => v.Id));
         }
     }
 }
