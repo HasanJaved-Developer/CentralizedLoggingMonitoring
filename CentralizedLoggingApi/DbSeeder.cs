@@ -16,7 +16,7 @@ namespace CentralizedLoggingApi
             if (!context.Applications.Any())
             {
                 context.Applications.AddRange(
-                    new Application { Name = "Payment Service", Environment = "Production", ApiKey = Guid.NewGuid().ToString() },
+                    new Application { Name = "Library Service", Environment = "Production", ApiKey = Guid.NewGuid().ToString() },
                     new Application { Name = "User Management", Environment = "Staging", ApiKey = Guid.NewGuid().ToString() },
                     new Application { Name = "Reporting API", Environment = "Development", ApiKey = Guid.NewGuid().ToString() },
                     new Application { Name = "Integration Portal", Environment = "Development", ApiKey = Guid.NewGuid().ToString() }
@@ -27,7 +27,7 @@ namespace CentralizedLoggingApi
             // Seed ErrorLogs
             if (!context.ErrorLogs.Any())
             {
-                var app1 = context.Applications.First(a => a.Name == "Payment Service");
+                var app1 = context.Applications.First(a => a.Name == "Library Service");
                 var app2 = context.Applications.First(a => a.Name == "User Management");
 
                 context.ErrorLogs.AddRange(
@@ -36,8 +36,8 @@ namespace CentralizedLoggingApi
                         ApplicationId = app1.Id,
                         Severity = "Error",
                         Message = "Null reference exception in payment processing",
-                        StackTrace = "at PaymentService.Process()...",
-                        Source = "PaymentService",
+                        StackTrace = "at LibraryService.Process()...",
+                        Source = "LibrarytService",
                         UserId = "user123",
                         RequestId = Guid.NewGuid().ToString(),
                         LoggedAt = DateTime.UtcNow
