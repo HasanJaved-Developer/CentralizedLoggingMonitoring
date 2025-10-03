@@ -2,7 +2,7 @@
 
 A centralized error logging and monitoring API built with **.NET 9**, Entity Framework Core, and SQL Server. This project is designed to serve as a foundation for collecting, storing, and managing error logs from multiple applications. **Phase 5,7&8** have also been complated and the pending **Phase 6** will be developed in a new repository. 
 
-Each phase is preserved in its own branch, but this repository now focuses on the above highlighted phases i.e. the final **Integration Portal, a Microservices influenced architechture (Single Service Database Pattern)**.
+Each phase of development is preserved in its own branch, culminating in the final **Integration Portal,** which, together with the API projects, forms a **Microservices-inspired architechture** that demonstrates **the Single Service Database Pattern.**
 
 ---
 
@@ -13,59 +13,6 @@ Each phase is preserved in its own branch, but this repository now focuses on th
 A **.NET 9 MVC Web App** that unifies multiple APIs (**User Management and Logging**) into a single **Integration Portal** with **role-based navigation**.
 
 ---
-
-## 🔑 Key Features
-
-- ✅ A login page with client and server side validations
-
-- ✅ There are two users for login. 
-
-- ✅ User name and passwords of the two are alice/alice and bob/bob. 
-
-- ✅ Alice is admin and bob is an operations user.
-
-- ✅ Serilog + file sinks implemented for the web app.
-
-- ✅ Invalid user error is posted to the Error logging API
-
-- ✅ When user logins successfully a cotegort tree is generated on the sidebar
-
-- ✅ Only logs link from the side bar work with the logout feature.
-
-- ✅ Admin user can view logs 
-
---- 
-
-## 📊 Architecture Glimpse
-
-![Integration Portal Architecture](docs/integration_portal_architecture.png)  
-<sub>[View Mermaid source](docs/integration_portal_architecture.mmd)</sub>
-
----
-
-### 📸 Screenshots
-
-### 🔑 Login Page
-
-![Login Page](docs/screenshots/login.png)
-
-### 📂 Home & Sidebar
-
-![Sidebar Tree](docs/screenshots/home%20and%20sidebar.png)
-
-### 📊 Logs (Admin View)
-
-![Logs Page](docs/screenshots/logs%20view.png)
-
-## 📡 API Swagger UI
-
-**User Management API**
-
-![User API Swagger](docs/screenshots/usermanagementapi.png)
-
-**Centralized Error Logging API**
-
-![Logging API Swagger](docs/screenshots/centralizedloggingapi.png)
 
 ## ⚙️ Implementation Details
 
@@ -131,9 +78,44 @@ A **.NET 9 MVC Web App** that unifies multiple APIs (**User Management and Loggi
   
   - Ensures secure re-authentication before accessing APIs again.
 
+--- 
+
+## 📊 Architecture Glimpse
+
+![Integration Portal Architecture](docs/integration_portal_architecture.png)  
+<sub>[View Mermaid source](docs/integration_portal_architecture.mmd)</sub>
+
+---
+
+### 📸 Screenshots
+
+### 🔑 Login Page
+
+![Login Page](docs/screenshots/login.png)
+
+### 📂 Home & Sidebar
+
+![Sidebar Tree](docs/screenshots/home%20and%20sidebar.png)
+
+### 📊 Logs (Admin View)
+
+![Logs Page](docs/screenshots/logs%20view.png)
+
+## 📡 API Swagger UI
+
+**User Management API**
+
+![User API Swagger](docs/screenshots/usermanagementapi.png)
+
+**Centralized Error Logging API**
+
+![Logging API Swagger](docs/screenshots/centralizedloggingapi.png)
+
 ---
 
 ## 🏗️ Planned Enhancements (Next Repository)
+
+
 
 The next repository will focus on:
 
