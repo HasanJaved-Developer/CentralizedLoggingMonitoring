@@ -25,8 +25,8 @@ namespace UserManagementApi
             // ----- Modules (link via navigation) -----
             var modUsers = new Module { Name = "User Management", Area = "Admin", Controller = "Users", Action = "Index", Category = adminCat };
             var modRoles = new Module { Name = "Role Management", Area = "Admin", Controller = "Roles", Action = "Index", Category = adminCat };
-            var modPay = new Module { Name = "Payments", Area = "Ops", Controller = "Payments", Action = "Index", Category = opsCat };
-            var modLog = new Module { Name = "Logs", Area = "Admin", Controller = "Logs", Action = "Index", Category = adminCat };
+            var modPay = new Module { Name = "Library", Area = "Ops", Controller = "Library", Action = "Index", Category = opsCat };
+            var modLog = new Module { Name = "Logs", Area = "Admin", Controller = "Error", Action = "Index", Category = adminCat };
             context.Modules.AddRange(modUsers, modRoles, modPay, modLog);
             context.SaveChanges();
 
@@ -35,7 +35,7 @@ namespace UserManagementApi
             var fUsersEdit = new Function { Module = modUsers, Code = "Users.Edit", DisplayName = "Edit Users" };
             var fRolesView = new Function { Module = modRoles, Code = "Roles.View", DisplayName = "View Roles" };
             var fRolesAssign = new Function { Module = modRoles, Code = "Roles.Assign", DisplayName = "Assign Roles" };
-            var fPayView = new Function { Module = modPay, Code = "Payments.View", DisplayName = "View Payments" };
+            var fPayView = new Function { Module = modPay, Code = "Library.View", DisplayName = "View Library" };
             var fLogView = new Function { Module = modLog, Code = "Logs.View", DisplayName = "View Logs" };
             context.Functions.AddRange(fUsersView, fUsersEdit, fRolesView, fRolesAssign, fPayView, fLogView);
             context.SaveChanges();
