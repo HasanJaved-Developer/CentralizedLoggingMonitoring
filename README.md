@@ -115,8 +115,6 @@ A **.NET 9 MVC Web App** that unifies multiple APIs (**User Management and Loggi
 
 ## 🏗️ Planned Enhancements (Next Repository)
 
-
-
 The next repository will focus on:
 
 - **Centralized Authorization Layer/Handler**
@@ -203,9 +201,13 @@ By default, it uses Development environment with appsettings.Development.json.
   
   - docker-compose down
 
-The API will be available at:
+The services will be available at:
 
-HTTP → http://localhost:5000/api
+[web app] HTTP → http://localhost:7000
+
+[user management api] HTTP → http://localhost:6000/api
+
+[error log api] HTTP → http://localhost:5000/api
 
 (HTTPS optional, future phase)
 
