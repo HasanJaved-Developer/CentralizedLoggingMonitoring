@@ -1,0 +1,192 @@
+﻿@model IEnumerable<CentralizedLogging.Contracts.Models.GetAllErrorsResponseModel>
+@{
+    ViewData["Title"] = "Error Logs";
+}
+@section Styles {
+
+    <style>
+        td.dtr-control::before {
+            content: '+' !important;
+            font-weight: 700;
+            display: inline-block;
+            width: 1.25rem;
+            text-align: center;
+        }
+
+        tr.dt-hasChild td.dtr-control::before {
+            content: '–' !important;
+        }
+
+        /* ---- Parent-only striping based on DT's stable row classes ---- */
+        #logsTable.table.table-striped-parents > tbody > tr.odd:not(.child) > * {
+            background-color: rgba(0,0,0,.03);
+        }
+
+        #logsTable.table.table-striped-parents > tbody > tr.even:not(.child) > * {
+            background-color: var(--bs-body-bg);
+        }
+
+        /* Parent-only hover */
+        #logsTable.table.table-hover-parents > tbody > tr:not(.child):hover > * {
+            background-color: rgba(0,0,0,.05);
+        }
+
+        /* Child rows: always plain (no gray), even after toggles/resizes */
+        #logsTable.dataTable > tbody > tr.child,
+        #logsTable.dataTable > tbody > tr.child > td.child {
+            background-color: var(--bs-body-bg) !important;
+            --bs-table-accent-bg: transparent !important;
+            --bs-table-striped-bg: transparent !important;
+            --bs-table-hover-bg: transparent !important;
+            --bs-table-active-bg: transparent !important;
+        }
+
+            /* Details list items inside child row */
+            #logsTable.dataTable > tbody > tr.child ul.dtr-details > li {
+                background: transparent !important;
+                border-bottom: 1px solid rgba(0,0,0,.075);
+            }
+
+       
+    </style>
+}
+
+<div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-white">
+        <h2 class="h5 mb-0 text-primary fw-bold">@ViewData["Title"]</h2>
+    </div>
+
+    <div class="card-body p-0">
+        <table id="logsTable" class="table table-striped-parents table-hover-parents align-middle dataTable-pending dt-no-gray-child mb-0 w-100">
+            <thead>
+                <tr>
+                    <th></th> <!-- control column for + -->
+                    <th data-priority="2">Id</th>
+                    <th data-priority="3">Application</th>
+                    <th data-priority="1">Severity</th>
+                    <th data-priority="1">Message</th>
+                    <th data-priority="5">Source</th>
+                    <th data-priority="6">User</th>
+                    <th data-priority="4">Request</th>
+                    <th data-priority="2">Logged At</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    var sev = (log.Severity ?? "").Trim();
+                    var sevClass = sev switch
+                    {
+                        "Critical" => "bg-danger",
+                        "Error" => "bg-danger",
+                        "Warning" => "bg-warning text-dark",
+                        "Info" => "bg-primary text-light",
+                        "Debug" => "bg-secondary",
+                        _ => "bg-secondary"
+                    };
+
+                    <tr>
+                        <td></td> <!-- empty cell for + icon -->
+                        <td class="font-monospace small text-muted">@log.Id</td>
+                        <td class="text-nowrap">@log.ApplicationName</td>
+                        <td><span class="badge @sevClass">@sev</span></td>
+                        <td class="text-wrap" style="max-width:520px; word-break:break-word;" title="@log.Message">@log.Message</td>
+                        <td class="text-nowrap">@log.Source</td>
+                        <td class="text-nowrap">@log.UserId</td>
+                        <td class="font-monospace small text-nowrap">@log.RequestId</td>
+                        <td class="text-nowrap">@log.LoggedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const dt = new DataTable('#logsTable', {
+            responsive: {
+              details: {
+                type: 'column',
+                target: 0,
+                // If you prefer to ALWAYS show all fields in child rows:
+                // renderer: DataTable.Responsive.renderer.tableAll()
+              }
+            },
+            columnDefs: [
+              { targets: 0, className: 'dtr-control', orderable: false },
+              { targets: 1, responsivePriority: 1 }, // Id (most important)
+              { targets: 3, orderable: false, responsivePriority: 2 }, // Severity
+              { targets: 2, responsivePriority: 3 }, // Application
+              { targets: 8, responsivePriority: 4 }, // Logged At
+              { targets: 7, responsivePriority: 5 }, // Request
+              { targets: 4, responsivePriority: 6 }, // Message (hide earlier)
+              { targets: 5, responsivePriority: 7 }, // Source
+              { targets: 6, responsivePriority: 8 }, // User
+              {
+                targets: 4,
+                render: function (data, type) {
+                  if (type === 'display') {
+                    const div = document.createElement('div');
+                    div.textContent = data ?? '';
+                    const safe = div.innerHTML;
+                    return `<span class="d-inline-block text-wrap" style="max-width:520px" title="${safe}">${safe}</span>`;
+                  }
+                  return data;
+                }
+              }
+            ],
+            paging: true,
+            pageLength: 25,
+            lengthMenu: [10, 25, 50, 100],
+            ordering: true,            
+            searching: true,
+            info: true,
+            autoWidth: false, // keep; we’ll call adjust()
+            deferRender: true
+          });
+
+             // --- KEY FIX: watch the container, not just the window ---
+        const tableEl = document.querySelector('#logsTable');
+        const container = tableEl.closest('.card-body') || tableEl.parentElement;
+
+        function recalc() {
+          dt.columns.adjust();
+          dt.responsive.recalc();
+        }
+
+        // 1) Container resize (sidebar open/close, grid change, etc.)
+        if ('ResizeObserver' in window && container) {
+          const ro = new ResizeObserver(() => recalc());
+          ro.observe(container);
+        }
+                
+        // 2) Fallbacks: window resize + Bootstrap “shown” events
+        const throttled = DataTable.util.throttle(recalc, 100);
+        window.addEventListener('resize', throttled);
+        document.addEventListener('shown.bs.tab', throttled);
+        document.addEventListener('shown.bs.collapse', throttled);
+        document.addEventListener('shown.bs.offcanvas', throttled);
+
+        // 3) If you toggle a custom sidebar, dispatch this event in your code:
+        // document.dispatchEvent(new Event('sidebar:toggled'));
+        document.addEventListener('sidebar:toggled', throttled);
+
+        // 4) If table was initially hidden (e.g., inside a hidden tab), force a first measure:
+        setTimeout(recalc, 0);
+
+        // Ensure final sizing after fonts/styles
+        dt.columns.adjust().responsive.recalc();
+
+        // Reveal once fully initialized
+        $('#logsTable').removeClass('dataTable-pending');
+
+               
+
+        });
+
+
+    </script>
+}
