@@ -83,6 +83,20 @@ A **.NET 9 MVC Web App** that unifies multiple APIs (**User Management and Loggi
   
   - Ensures secure re-authentication before accessing APIs again.
 
+- **Testing & CI** 
+
+  - xUnit unit test covers server-side validation.
+
+  - a WebApplicationFactory-based integration test verifies the login happy path returns 200 OK.
+
+- **Pipeline & Coverage**
+
+  - GitHub Actions runs unit tests on push/PR.
+
+  - Collects LCOV via Coverlet.
+
+  - Uploads to Codecov (Build + Coverage badges in README).
+
 --- 
 
 ## 📊 Architecture Glimpse
