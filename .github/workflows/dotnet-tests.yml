@@ -42,7 +42,7 @@ jobs:
           dotnet test "${{ matrix.proj }}" \
             --no-build \
             --collect:"XPlat Code Coverage" \
-            --settings coverlet.runsettings.xml \
+            --settings coverlet.runsettings \
             --results-directory "./TestResults/${{ matrix.name }}" \
             --logger "trx;LogFileName=${{ matrix.name }}.trx" \
             -v n
