@@ -1,5 +1,12 @@
 # Centralized Logging & Monitoring API
 
+[![Build](https://github.com/HasanJaved-Developer/CentralizedLoggingMonitoring/actions/workflows/dotnet-test-coverage.yml/badge.svg)](https://github.com/HasanJaved-Developer/CentralizedLoggingMonitoring/actions/workflows/dotnet-test-coverage.yml)
+[![Docker Build](https://github.com/HasanJaved-Developer/CentralizedLoggingMonitoring/actions/workflows/docker-build.yml/badge.svg)](https://github.com/HasanJaved-Developer/CentralizedLoggingMonitoring/actions/workflows/docker-build.yml)
+[![codecov](https://codecov.io/gh/HasanJaved-Developer/CentralizedLoggingMonitoring/branch/main/graph/badge.svg)](https://codecov.io/gh/HasanJaved-Developer/CentralizedLoggingMonitoring)
+[![License](https://img.shields.io/github/license/HasanJaved-Developer/CentralizedLoggingMonitoring)](./LICENSE.txt)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/HasanJaved-Developer/CentralizedLoggingMonitoring)
+
+
 A centralized error logging and monitoring API built with **.NET 9**, Entity Framework Core, and SQL Server. This project is designed to serve as a foundation for collecting, storing, and managing error logs from multiple applications. **Phase 5,7&8** have also been complated and the pending **Phase 6** will be developed in a new repository. 
 
 Each phase of development is preserved in its own branch, culminating in the final **Integration Portal,** which, together with the API projects, forms a **Microservices-inspired architechture** that demonstrates **the Single Service Database Pattern.**

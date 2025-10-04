@@ -1,0 +1,30 @@
+name: .NET Tests (collector)
+
+on:
+  push: { branches: [ "main" ] }
+  pull_request: { branches: [ "main" ] }
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Test with coverage (collector → LCOV)
+        run: dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./TestResults
+
+      # Upload all coverage.info files (supports multiple test projects)
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: '**/TestResults/**/coverage.info'
+          flags: unit,integration
+          fail_ci_if_error: true
+          verbose: true
+          # token: ${{ secrets.CODECOV_TOKEN }}   # only needed for private repos
