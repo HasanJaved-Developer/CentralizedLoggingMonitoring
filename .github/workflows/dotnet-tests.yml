@@ -3,6 +3,11 @@ name: .NET Tests (collector)
 on:
   push:
     branches: [ "main", "master" ]
+    paths-ignore:
+      - "**/*.md"
+      - "**/*.png"
+      - "**/*.jpg"
+      - "**/*.svg"
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch: {}
@@ -11,7 +16,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write   # only needed if you use Codecov with OIDC
+      id-token: write  # for Codecov OIDC (safe to keep)
 
     strategy:
       matrix:
@@ -28,18 +33,19 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: 'Sanity - show files at repo root'
+      - name: Sanity - show files at repo root
         run: ls -la
 
-      - name: 'Restore'
+      - name: Restore
         run: dotnet restore
 
-      - name: 'Build (Release)'
+      - name: Build (Release)
         run: dotnet build --configuration Release --no-restore
 
-      - name: 'Test with coverage (collector → LCOV)'
+      - name: Test with coverage (collector → LCOV)
         run: |
           dotnet test "${{ matrix.proj }}" \
+            --configuration Release \
             --no-build \
             --collect:"XPlat Code Coverage" \
             --settings coverlet.runsettings \
@@ -47,7 +53,7 @@ jobs:
             --logger "trx;LogFileName=${{ matrix.name }}.trx" \
             -v n
 
-      - name: 'Upload coverage + TRX'
+      - name: Upload coverage + TRX
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -56,7 +62,7 @@ jobs:
             TestResults/${{ matrix.name }}/**/coverage.info
             TestResults/${{ matrix.name }}/**/*.trx
 
-      - name: 'Upload to Codecov'
+      - name: Upload to Codecov
         if: success()
         uses: codecov/codecov-action@v5
         with:
