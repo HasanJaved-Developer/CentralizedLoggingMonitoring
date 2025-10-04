@@ -70,10 +70,7 @@ namespace UserManagementApi.Controllers
             var dto = await BuildPermissionsForUser(user.Id);
                         
             var token = GenerateJwt(user, dto.Categories, out var expiresAtUtc);
-
-            // Get the same permissions tree you already expose
-            var permissions = await BuildPermissionsForUser(user.Id);
-
+                       
             return Ok(new AuthResponse(user.Id, user.UserName, token, expiresAtUtc));
         }
 
@@ -95,7 +92,7 @@ namespace UserManagementApi.Controllers
 
         // ----- helpers -----
 
-        private async Task<UserPermissionsDto> BuildPermissionsForUser(int userId)
+        protected virtual async Task<UserPermissionsDto> BuildPermissionsForUser(int userId)
         {
             // Fetch the user (for name in DTO)
             var user = await _db.Users.AsNoTracking().FirstAsync(u => u.Id == userId);
@@ -153,7 +150,7 @@ namespace UserManagementApi.Controllers
             return new UserPermissionsDto(user.Id, user.UserName, categoryDtos);
         }
                 
-        private string GenerateJwt(AppUser user, List<CategoryDto> Categories, out DateTime expiresAtUtc)
+        protected virtual string GenerateJwt(AppUser user, List<CategoryDto> Categories, out DateTime expiresAtUtc)
         {
             var keyBase64 = _jwt.Key;
             var keyPlain = Encoding.UTF8.GetString(Convert.FromBase64String(keyBase64));

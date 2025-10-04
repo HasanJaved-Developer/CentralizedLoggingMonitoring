@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentralizedLogging.Sdk", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentralizedLogging.Contracts", "CentralizedLogging.Contracts\CentralizedLogging.Contracts.csproj", "{FAAAA797-C668-4B08-B5CA-504A21A3917A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagementApi.Tests.Unit", "UserManagementApi.Tests.Unit\UserManagementApi.Tests.Unit.csproj", "{66616F9C-B71C-45BF-8962-BAA356215BE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{FAAAA797-C668-4B08-B5CA-504A21A3917A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAAAA797-C668-4B08-B5CA-504A21A3917A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAAAA797-C668-4B08-B5CA-504A21A3917A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66616F9C-B71C-45BF-8962-BAA356215BE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66616F9C-B71C-45BF-8962-BAA356215BE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66616F9C-B71C-45BF-8962-BAA356215BE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66616F9C-B71C-45BF-8962-BAA356215BE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
