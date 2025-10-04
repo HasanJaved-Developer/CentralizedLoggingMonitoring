@@ -1,10 +1,8 @@
 # Centralized Logging & Monitoring API
 
-[![Build](https://github.com/HasanJaved-Developer/CentralizedLoggingMonitoring/actions/workflows/dotnet-test-coverage.yml/badge.svg)](https://github.com/HasanJaved-Developer/CentralizedLoggingMonitoring/actions/workflows/dotnet-test-coverage.yml)
-[![Docker Build](https://github.com/HasanJaved-Developer/CentralizedLoggingMonitoring/actions/workflows/docker-build.yml/badge.svg)](https://github.com/HasanJaved-Developer/CentralizedLoggingMonitoring/actions/workflows/docker-build.yml)
-[![codecov](https://codecov.io/gh/HasanJaved-Developer/CentralizedLoggingMonitoring/branch/main/graph/badge.svg)](https://codecov.io/gh/HasanJaved-Developer/CentralizedLoggingMonitoring)
-[![License](https://img.shields.io/github/license/HasanJaved-Developer/CentralizedLoggingMonitoring)](./LICENSE.txt)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/HasanJaved-Developer/CentralizedLoggingMonitoring)
+[![Build](https://github.com/hasanjaved-developer/CentralizedLoggingMonitoring/actions/workflows/dotnet-tests.yml/badge.svg?branch=master)](https://github.com/hasanjaved-developer/CentralizedLoggingMonitoring/actions/workflows/dotnet-tests.yml)
+[![codecov](https://codecov.io/gh/hasanjaved-developer/CentralizedLoggingMonitoring/branch/master/graph/badge.svg)](https://codecov.io/gh/hasanjaved-developer/CentralizedLoggingMonitoring)
+[![License](https://img.shields.io/github/license/hasanjaved-developer/centralizedloggingmonitoring)](LICENSE.txt)
 
 
 A centralized error logging and monitoring API built with **.NET 9**, Entity Framework Core, and SQL Server. This project is designed to serve as a foundation for collecting, storing, and managing error logs from multiple applications. **Phase 5,7&8** have also been complated and the pending **Phase 6** will be developed in a new repository. 
