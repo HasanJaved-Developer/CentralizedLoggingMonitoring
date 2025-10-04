@@ -3,6 +3,7 @@ name: .NET Tests (collector)
 on:
   push: { branches: [ "main" ] }
   pull_request: { branches: [ "main" ] }
+  workflow_dispatch: {}   # ← enables the “Run workflow” button
 
 jobs:
   test:
