@@ -8,24 +8,58 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    steps:
+    
+     strategy:
+      matrix:
+        include:
+          - name: UserManagementApi.Tests.Unit
+            proj: UserManagementApi.Tests.Unit.csproj
+          - name: UserManagementApi.Tests.Integration
+            proj: UserManagementApi.Tests.Integration.csproj
+            
+   steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
+      - name: Sanity: show files at repo root
+        run: ls -la
+
       - name: Restore
         run: dotnet restore
 
-      - name: Test with coverage (collector → LCOV)
-        run: dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./TestResults
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
 
-      # Upload all coverage.info files (supports multiple test projects)
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Test with coverage (collector -> LCOV)
+        run: |
+          dotnet test "${{ matrix.proj }}" \
+            --no-build \
+            --collect:"XPlat Code Coverage" \
+            --settings coverlet.runsettings.xml \
+            --results-directory "./TestResults/${{ matrix.name }}" \
+            --logger "trx;LogFileName=${{ matrix.name }}.trx" \
+            -v n
+
+      - name: Upload coverage + TRX
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          files: '**/TestResults/**/coverage.info'
-          flags: unit,integration
+          name: ${{ matrix.name }}-results
+          path: |
+            TestResults/${{ matrix.name }}/**/coverage.info
+            TestResults/${{ matrix.name }}/**/*.trx
+
+      # Codecov (optional)
+      - name: Upload to Codecov
+        if: success()
+        uses: codecov/codecov-action@v5
+        with:
+          files: TestResults/${{ matrix.name }}/**/coverage.info
+          flags: ${{ matrix.name }}
           fail_ci_if_error: true
-          verbose: true
-          # token: ${{ secrets.CODECOV_TOKEN }}   # only needed for private repos
+          use_oidc: true
+        permissions:
+          id-token: write
