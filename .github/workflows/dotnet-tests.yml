@@ -17,9 +17,9 @@ jobs:
       matrix:
         include:
           - name: UserManagementApi.Tests.Unit
-            proj: UserManagementApi.Tests.Unit.csproj
+            proj: UserManagementApi.Tests.Unit/UserManagementApi.Tests.Unit.csproj
           - name: UserManagementApi.Tests.Integration
-            proj: UserManagementApi.Tests.Integration.csproj
+            proj: UserManagementApi.Tests.Integration/UserManagementApi.Tests.Integration.csproj
 
     steps:
       - uses: actions/checkout@v4
