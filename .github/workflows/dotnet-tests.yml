@@ -1,23 +1,27 @@
 name: .NET Tests (collector)
 
 on:
-  push: { branches: [ "main" ] }
-  pull_request: { branches: [ "main" ] }
-  workflow_dispatch: {}   # ← enables the “Run workflow” button
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: {}
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
-     strategy:
+    permissions:
+      id-token: write   # needed only if you use Codecov with OIDC
+
+    strategy:
       matrix:
         include:
           - name: UserManagementApi.Tests.Unit
             proj: UserManagementApi.Tests.Unit.csproj
           - name: UserManagementApi.Tests.Integration
             proj: UserManagementApi.Tests.Integration.csproj
-            
-   steps:
+
+    steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-dotnet@v4
@@ -52,7 +56,6 @@ jobs:
             TestResults/${{ matrix.name }}/**/coverage.info
             TestResults/${{ matrix.name }}/**/*.trx
 
-      # Codecov (optional)
       - name: Upload to Codecov
         if: success()
         uses: codecov/codecov-action@v5
@@ -61,5 +64,3 @@ jobs:
           flags: ${{ matrix.name }}
           fail_ci_if_error: true
           use_oidc: true
-        permissions:
-          id-token: write
