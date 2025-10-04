@@ -5,8 +5,7 @@
       <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
           <Format>lcov</Format>
-          <IncludeTestAssembly>false</IncludeTestAssembly>
-          <DeterministicReport>true</DeterministicReport>
+          <IncludeTestAssembly>false</IncludeTestAssembly>          
           <ExcludeByFile>**/Migrations/*.cs;**/Program.cs</ExcludeByFile>
         </Configuration>
       </DataCollector>
