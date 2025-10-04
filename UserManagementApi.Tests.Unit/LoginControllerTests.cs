@@ -8,13 +8,6 @@ using UserManagementApi.Data;
 using UserManagementApi.DTO;
 using UserManagementApi.DTO.Auth;
 
-
-//using FluentAssertions;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-using Xunit;
-
 namespace UserManagementApi.Tests.Unit
 {
     public class LoginControllerTests
