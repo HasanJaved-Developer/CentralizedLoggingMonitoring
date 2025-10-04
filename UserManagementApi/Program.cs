@@ -152,3 +152,4 @@ await app.MigrateAndSeedWithSqlLockAsync<AppDbContext>(
 
 
 app.Run();
+public partial class Program { }  // make Program discoverable for tests
