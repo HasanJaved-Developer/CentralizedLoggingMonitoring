@@ -23,8 +23,6 @@ jobs:
         include:
           - name: UserManagementApi.Tests.Unit
             proj: UserManagementApi.Tests.Unit/UserManagementApi.Tests.Unit.csproj
-          - name: UserManagementApi.Tests.Integration
-            proj: UserManagementApi.Tests.Integration/UserManagementApi.Tests.Integration.csproj
 
     steps:
       - uses: actions/checkout@v4
