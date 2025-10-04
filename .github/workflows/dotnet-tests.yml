@@ -16,13 +16,15 @@ jobs:
       - name: Restore
         run: dotnet restore
 
-      - name: Test (collector, Cobertura)
-        run: |
-          # Centralize results in one folder (still creates GUID subfolders inside)
-          dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults
+      - name: Test with coverage (collector → LCOV)
+        run: dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./TestResults
 
-      - name: Upload coverage artifacts (Cobertura)
-        uses: actions/upload-artifact@v4
+      # Upload all coverage.info files (supports multiple test projects)
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          name: cobertura-reports
-          path: '**/TestResults/**/coverage.cobertura.xml'
+          files: '**/TestResults/**/coverage.info'
+          flags: unit,integration
+          fail_ci_if_error: true
+          verbose: true
+          # token: ${{ secrets.CODECOV_TOKEN }}   # only needed for private repos
