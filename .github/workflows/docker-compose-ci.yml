@@ -34,4 +34,4 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/centralized-logging:latest
-            ghcr.io/${{ github.repository_owner,, }}/centralized-logging:latest
+            ghcr.io/hasanjaved-developer/centralized-logging:latest
