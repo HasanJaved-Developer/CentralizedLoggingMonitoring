@@ -7,7 +7,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Build and Push Docker Image
 
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - name: usermanagementapi
+            context: .
+            dockerfile: UserManagementApi/Dockerfile
+          - name: loggingapi
+            context: .
+            dockerfile: CentralizedLoggingApi/Dockerfile
+          - name: integrationportal
+            context: .
+            dockerfile: ApiIntegrationMvc/Dockerfile
+            
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
