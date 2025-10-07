@@ -1,0 +1,9 @@
+services:
+  userapi:
+    image: ghcr.io/hasanjaved-developer/centralized-logging/usermanagementapi:${TAG:-edge}
+
+  api:
+    image: ghcr.io/hasanjaved-developer/centralized-logging/loggingapi:${TAG:-edge}
+
+  web:
+    image: ghcr.io/hasanjaved-developer/centralized-logging/integrationportal:${TAG:-edge}
