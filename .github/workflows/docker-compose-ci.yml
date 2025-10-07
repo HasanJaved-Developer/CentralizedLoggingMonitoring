@@ -1,16 +1,16 @@
-# .github/workflows/docker-compose-ci.yml
 name: Build & Push (Compose/Bake)
 
 on:
   push:
     branches: [ "main", "master" ]
-  # enable when you want release builds from tags
-  # push:
-  #   tags: [ "v*" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    env:
+      # Your Docker Hub namespace (must be lowercase)
+      DOCKERHUB_NS: ${{ secrets.DOCKERHUB_USERNAME }}
 
     steps:
       - name: Checkout
@@ -34,20 +34,31 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Optional: quick sanity check that compose is at repo root
-      - name: Show tree
-        run: |
-          pwd
-          ls -la
-          test -f docker-compose.yml && echo "compose found" || (echo "compose missing" && exit 1)
+      - name: Compute short SHA
+        id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Build & Push with Bake (compose)
-        uses: docker/bake-action@v4
+      - name: Ensure compose files exist
+        run: |
+          test -f docker-compose.yml || (echo "missing docker-compose.yml" && exit 1)
+          test -f docker-compose.ci.override.yml || (echo "missing docker-compose.ci.override.yml" && exit 1)
+
+      - name: Build & Push with Bake (compose + override)
+        uses: docker/bake-action@v5
         with:
           files: |
             docker-compose.yml
+            docker-compose.ci.override.yml
           push: true
-          # You can override or add tags/labels per-target with `set:` if needed
-          # set: |
-          #   *.labels=org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-          #   *.tags=ghcr.io/hasanjaved-developer/centralized-logging/{{.target}}:edge
+          # Add extra tags for GHCR (sha) and Docker Hub (edge + sha)
+          set: |
+            *.labels=org.opencontainers.image.revision=${{ github.sha }}
+            usermanagementapi.tags=${{ env.DOCKERHUB_NS }}/centralized-logging/usermanagementapi:edge
+            usermanagementapi.tags=${{ env.DOCKERHUB_NS }}/centralized-logging/usermanagementapi:${{ steps.sha.outputs.short }}
+            centralizedloggingapi.tags=${{ env.DOCKERHUB_NS }}/centralized-logging/loggingapi:edge
+            centralizedloggingapi.tags=${{ env.DOCKERHUB_NS }}/centralized-logging/loggingapi:${{ steps.sha.outputs.short }}
+            apiintegrationmvc.tags=${{ env.DOCKERHUB_NS }}/centralized-logging/integrationportal:edge
+            apiintegrationmvc.tags=${{ env.DOCKERHUB_NS }}/centralized-logging/integrationportal:${{ steps.sha.outputs.short }}
+        env:
+          # Primary tag selected in the override (GHCR)
+          TAG: edge
