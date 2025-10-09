@@ -1,15 +1,31 @@
-# .github/workflows/docker-compose-ci.yml
-name: Build & Push (Compose/Bake)
+name: docker-compose-ci
 
 on:
   push:
-    branches: [ "main", "master" ]
-  # enable when you want release builds from tags
-  # push:
-  #   tags: [ "v*" ]
+    branches: [ master ]
+    tags: [ 'v*.*.*' ]   # v1.2.3 -> release images
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+  packages: write      # needed for GHCR
+  id-token: write
+
+concurrency:
+  group: docker-compose-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Project namespace for your image path: ghcr.io/<owner>/<REPO_SLUG>/<service>
+  REPO_SLUG: centralized-logging
+  # Optional: set to your Docker Hub namespace (lowercase). Leave empty to skip mirroring.
+  DOCKERHUB_NAMESPACE: ""
+  # Multi-arch
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,36 +34,119 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Docker Buildx
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      # --- Compute tags per service (three separate metadata steps) ---
+      - name: Meta (userapi)
+        id: meta_user
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ env.REPO_SLUG }}/userapi
+          tags: |
+            type=raw,value=edge,enable=${{ github.event_name != 'pull_request' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Meta (api)
+        id: meta_api
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ env.REPO_SLUG }}/api
+          tags: |
+            type=raw,value=edge,enable=${{ github.event_name != 'pull_request' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Meta (web)
+        id: meta_web
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ env.REPO_SLUG }}/web
+          tags: |
+            type=raw,value=edge,enable=${{ github.event_name != 'pull_request' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=semver,pattern={{version}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Login to GHCR
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub (optional)
+        if: ${{ github.event_name != 'pull_request' && env.DOCKERHUB_NAMESPACE != '' && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
+      # Build cache (local dir cache)
+      - name: Restore build cache
+        uses: actions/cache@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-      # Optional: quick sanity check that compose is at repo root
-      - name: Show tree
+      - name: Bake & Push (multi-arch)
+        uses: docker/bake-action@v5
+        with:
+          files: ./docker-bake.hcl
+          push: ${{ github.event_name != 'pull_request' }}
+          set: |
+            # Platforms & cache
+            *.platform=${{ env.PLATFORMS }}
+            *.cache-from=type=local,src=/tmp/.buildx-cache
+            *.cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max
+            # Labels/injection
+            *.labels.org.opencontainers.image.revision=${{ github.sha }}
+            # Bake variables (must match variable names in docker-bake.hcl)
+            OWNER=${{ github.repository_owner }}
+            REPO_SLUG=${{ env.REPO_SLUG }}
+            # If you customized REGISTRY_GHCR in the bake file, you could set it here too:
+            # REGISTRY_GHCR=ghcr.io
+            # Service-specific tags
+            userapi.tags=${{ steps.meta_user.outputs.tags }}
+            api.tags=${{ steps.meta_api.outputs.tags }}
+            web.tags=${{ steps.meta_web.outputs.tags }}
+
+      - name: Save build cache
+        if: always()
         run: |
-          pwd
-          ls -la
-          test -f docker-compose.yml && echo "compose found" || (echo "compose missing" && exit 1)
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      - name: Build & Push with Bake (compose)
-        uses: docker/bake-action@v4
-        with:
-          files: |
-            docker-compose.yml
-          push: true
-          # You can override or add tags/labels per-target with `set:` if needed
-          # set: |
-          #   *.labels=org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-          #   *.tags=ghcr.io/hasanjaved-developer/centralized-logging/{{.target}}:edge
+      - name: Mirror to Docker Hub (optional)
+        if: ${{ github.event_name != 'pull_request' && env.DOCKERHUB_NAMESPACE != '' && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          mapfile -t USER_TAGS <<< "${{ steps.meta_user.outputs.tags }}"
+          mapfile -t API_TAGS  <<< "${{ steps.meta_api.outputs.tags }}"
+          mapfile -t WEB_TAGS  <<< "${{ steps.meta_web.outputs.tags }}"
+
+          mirror() {
+            local svc="$1"; shift
+            for t in "$@"; do
+              tg="$(basename "$t")"
+              ghcr="ghcr.io/${{ github.repository_owner }}/${{ env.REPO_SLUG }}/${svc}:${tg}"
+              hub="${{ env.DOCKERHUB_NAMESPACE }}/${{ env.REPO_SLUG }}-${svc}:${tg}"
+              echo "Mirroring $ghcr -> $hub"
+              docker pull "$ghcr"
+              docker tag  "$ghcr" "$hub"
+              docker push "$hub"
+            done
+          }
+
+          mirror userapi "${USER_TAGS[@]}"
+          mirror api     "${API_TAGS[@]}"
+          mirror web     "${WEB_TAGS[@]}"
