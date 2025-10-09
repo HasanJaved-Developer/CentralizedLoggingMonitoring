@@ -3,10 +3,10 @@ name: docker-compose-ci
 
 on:
   push:
-    branches: [ master ]
+    branches: [ "master" ]
     tags: [ 'v*.*.*' ]   # v1.2.3 -> release images
   pull_request:
-    branches: [ master ]
+    branches: [ "master" ]
 
 permissions:
   contents: read
