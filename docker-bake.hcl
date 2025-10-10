@@ -14,8 +14,8 @@ group "default" {
 /* ---------------------- userapi (UserManagementApi) ---------------------- */
 target "userapi" {
   // Your project folder contains UserManagementApi.csproj + Dockerfile
-  context    = "./UserManagementApi"
-  dockerfile = "Dockerfile"
+  context    = "."
+  dockerfile = "./UserManagementApi/Dockerfile"
 
   // Default tag; workflow should append latest/semver etc. via --set
   tags = [
@@ -31,8 +31,8 @@ target "userapi" {
 
 /* ---------------------- api (CentralizedLoggingApi) ---------------------- */
 target "api" {
-  context    = "./CentralizedLoggingApi"
-  dockerfile = "Dockerfile"
+  context    = "."
+  dockerfile = "./CentralizedLoggingApi/Dockerfile"
 
   tags = [
     "${REGISTRY_GHCR}/${OWNER}/${REPO_SLUG}/api:edge"
@@ -47,8 +47,8 @@ target "api" {
 
 /* ---------------------- web (IntegrationPortal) ---------------------- */
 target "web" {
-  context    = "./ApiIntegrationMvc"
-  dockerfile = "Dockerfile"
+  context    = "."
+  dockerfile = "./ApiIntegrationMvc/Dockerfile"
 
   tags = [
     "${REGISTRY_GHCR}/${OWNER}/${REPO_SLUG}/web:edge"
