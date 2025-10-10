@@ -19,20 +19,19 @@ concurrency:
 
 env:
   REPO_SLUG: centralized-logging
-  DOCKERHUB_NAMESPACE: ""         # set to mirror to Docker Hub or leave empty
+  DOCKERHUB_NAMESPACE: ""        # set to mirror to Docker Hub or leave empty
   PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   images:
     name: Build and Push Images (GHCR)
     runs-on: ubuntu-latest
-    # Push images only on master or version tags; still allows manual/PR runs for build validation
+    # Push images only on master, tags, or manual dispatch (PRs still build if you press Run)
     if: >
       github.event_name == 'workflow_dispatch' ||
       startsWith(github.ref, 'refs/heads/master') ||
       startsWith(github.ref, 'refs/tags/v')
     env:
-      # expose secrets as env so conditions use env.* instead of secrets.*
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
@@ -47,39 +46,42 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Per-service metadata (tags)
-      - name: Meta (userapi)
-        id: meta_user
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ env.REPO_SLUG }}/userapi
-          tags: |
-            type=raw,value=edge,enable=${{ startsWith(github.ref,'refs/heads/master') || startsWith(github.ref,'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
-            type=raw,value=latest,enable=${{ startsWith(github.ref,'refs/heads/master') }}
-            type=semver,pattern={{version}},enable=${{ startsWith(github.ref,'refs/tags/v') }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref,'refs/tags/v') }}
+      # Build a single-line, comma-separated tag list per service
+      - name: Compute tags
+        id: tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"               # force lowercase for GHCR
+          REPO_SLUG="${REPO_SLUG}"
 
-      - name: Meta (api)
-        id: meta_api
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ env.REPO_SLUG }}/api
-          tags: |
-            type=raw,value=edge,enable=${{ startsWith(github.ref,'refs/heads/master') || startsWith(github.ref,'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
-            type=raw,value=latest,enable=${{ startsWith(github.ref,'refs/heads/master') }}
-            type=semver,pattern={{version}},enable=${{ startsWith(github.ref,'refs/tags/v') }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref,'refs/tags/v') }}
+          # Always push :edge
+          user_tags="ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:edge"
+          api_tags="ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:edge"
+          web_tags="ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:edge"
 
-      - name: Meta (web)
-        id: meta_web
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ env.REPO_SLUG }}/web
-          tags: |
-            type=raw,value=edge,enable=${{ startsWith(github.ref,'refs/heads/master') || startsWith(github.ref,'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
-            type=raw,value=latest,enable=${{ startsWith(github.ref,'refs/heads/master') }}
-            type=semver,pattern={{version}},enable=${{ startsWith(github.ref,'refs/tags/v') }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ startsWith(github.ref,'refs/tags/v') }}
+          REF="${GITHUB_REF}"
+
+          # On master, also push :latest
+          if [[ "$REF" == "refs/heads/master" ]]; then
+            user_tags+=",ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:latest"
+            api_tags+=",ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:latest"
+            web_tags+=",ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:latest"
+          fi
+
+          # On tag vX.Y.Z, also push :vX.Y.Z and :X.Y
+          if [[ "$REF" == refs/tags/v* ]]; then
+            ver="${REF#refs/tags/}"            # vX.Y.Z
+            short="${ver#v}"                   # X.Y.Z
+            minor="${short%.*}"                # X.Y
+            user_tags+=",ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:${ver},ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:${minor}"
+            api_tags+=",ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:${ver},ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:${minor}"
+            web_tags+=",ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${ver},ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${minor}"
+          fi
+
+          echo "user_tags=$user_tags" >> "$GITHUB_OUTPUT"
+          echo "api_tags=$api_tags"   >> "$GITHUB_OUTPUT"
+          echo "web_tags=$web_tags"   >> "$GITHUB_OUTPUT"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -108,16 +110,17 @@ jobs:
         with:
           files: ./docker-bake.hcl
           push: true
+          variables: |
+            OWNER=${{ github.repository_owner }}
+            REPO_SLUG=${{ env.REPO_SLUG }}
           set: |
             *.platform=${{ env.PLATFORMS }}
             *.cache-from=type=local,src=/tmp/.buildx-cache
             *.cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max
             *.labels.org.opencontainers.image.revision=${{ github.sha }}
-            OWNER=${{ github.repository_owner }}
-            REPO_SLUG=${{ env.REPO_SLUG }}
-            userapi.tags=${{ steps.meta_user.outputs.tags }}
-            api.tags=${{ steps.meta_api.outputs.tags }}
-            web.tags=${{ steps.meta_web.outputs.tags }}
+            userapi.tags=${{ steps.tags.outputs.user_tags }}
+            api.tags=${{ steps.tags.outputs.api_tags }}
+            web.tags=${{ steps.tags.outputs.web_tags }}
 
       - name: Save build cache
         if: always()
@@ -129,11 +132,16 @@ jobs:
         if: ${{ env.DOCKERHUB_NAMESPACE != '' && env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
         run: |
           set -euo pipefail
-          mirror() { local svc="$1"; shift; for t in "$@"; do tg="$(basename "$t")"; \
-            ghcr="ghcr.io/${{ github.repository_owner }}/${{ env.REPO_SLUG }}/${svc}:${tg}"; \
-            hub="${{ env.DOCKERHUB_NAMESPACE }}/${{ env.REPO_SLUG }}-${svc}:${tg}"; \
-            echo "Mirroring $ghcr -> $hub"; docker pull "$ghcr"; docker tag "$ghcr" "$hub"; docker push "$hub"; done; }
-          mapfile -t USER_TAGS <<< "${{ steps.meta_user.outputs.tags }}"
-          mapfile -t API_TAGS  <<< "${{ steps.meta_api.outputs.tags }}"
-          mapfile -t WEB_TAGS  <<< "${{ steps.meta_web.outputs.tags }}"
-          mirror userapi "${USER_TAGS[@]}"; mirror api "${API_TAGS[@]}"; mirror web "${WEB_TAGS[@]}"
+          mirror() { local svc="$1"; local list="$2"; IFS=',' read -ra arr <<< "$list"; \
+            for img in "${arr[@]}"; do
+              tag="${img##*:}"
+              hub="${DOCKERHUB_NAMESPACE}/${REPO_SLUG}-${svc}:${tag}"
+              echo "Mirroring $img -> $hub"
+              docker pull "$img"
+              docker tag  "$img" "$hub"
+              docker push "$hub"
+            done
+          }
+          mirror userapi "${{ steps.tags.outputs.user_tags }}"
+          mirror api     "${{ steps.tags.outputs.api_tags }}"
+          mirror web     "${{ steps.tags.outputs.web_tags }}"
