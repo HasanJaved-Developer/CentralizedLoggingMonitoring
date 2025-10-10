@@ -3,10 +3,10 @@ name: docker-compose-ci
 on:
   workflow_dispatch:
   push:
-    branches: ["**"]
+    branches: ["master"]
     tags: ["v*.*.*"]
   pull_request:
-    branches: ["**"]
+    branches: ["master"]
 
 permissions:
   contents: read
