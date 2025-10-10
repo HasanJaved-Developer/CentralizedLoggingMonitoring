@@ -73,10 +73,21 @@ jobs:
             web_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${ver}"     "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${minor}" )
           fi
 
-          # emit JSON arrays
-          printf 'user_tags_json=%s\n' "$(printf '%s\n' "${user_tags[@]}" | jq -R . | jq -s .)" >> "$GITHUB_OUTPUT"
-          printf 'api_tags_json=%s\n'  "$(printf '%s\n' "${api_tags[@]}"  | jq -R . | jq -s .)" >> "$GITHUB_OUTPUT"
-          printf 'web_tags_json=%s\n'  "$(printf '%s\n' "${web_tags[@]}"  | jq -R . | jq -s .)" >> "$GITHUB_OUTPUT"
+          user_json="$(printf '%s\n' "${user_tags[@]}" | jq -R . | jq -s .)"
+          api_json="$(printf '%s\n' "${api_tags[@]}"  | jq -R . | jq -s .)"
+          web_json="$(printf '%s\n' "${web_tags[@]}"  | jq -R . | jq -s .)"
+
+          {
+            echo "user_tags_json<<EOF"
+            echo "${user_json}"
+            echo "EOF"
+            echo "api_tags_json<<EOF"
+            echo "${api_json}"
+            echo "EOF"
+            echo "web_tags_json<<EOF"
+            echo "${web_json}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -97,7 +108,8 @@ jobs:
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-buildx-
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Bake and Push (multi-arch)
         uses: docker/bake-action@v5
