@@ -44,8 +44,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Build JSON arrays of tags for each service
-      - name: Compute tags (JSON arrays)
+      # Build *lines* of overrides like:
+      #   userapi.tags=ghcr.io/...:edge
+      #   userapi.tags=ghcr.io/...:latest
+      - name: Compute tag override lines
         id: tags
         shell: bash
         run: |
@@ -53,6 +55,14 @@ jobs:
           OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
           REPO_SLUG="${REPO_SLUG}"
           REF="${GITHUB_REF}"
+
+          add_tags_lines() {
+            local svc="$1"; shift
+            local -a tags=( "$@" )
+            for t in "${tags[@]}"; do
+              printf '%s.tags=%s\n' "$svc" "$t"
+            done
+          }
 
           user_tags=( "ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:edge" )
           api_tags=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:edge" )
@@ -73,19 +83,19 @@ jobs:
             web_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${ver}"     "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${minor}" )
           fi
 
-          user_json="$(printf '%s\n' "${user_tags[@]}" | jq -R . | jq -s .)"
-          api_json="$(printf '%s\n' "${api_tags[@]}"  | jq -R . | jq -s .)"
-          web_json="$(printf '%s\n' "${web_tags[@]}"  | jq -R . | jq -s .)"
+          user_lines="$(add_tags_lines userapi "${user_tags[@]}")"
+          api_lines="$(add_tags_lines api "${api_tags[@]}")"
+          web_lines="$(add_tags_lines web "${web_tags[@]}")"
 
           {
-            echo "user_tags_json<<EOF"
-            echo "${user_json}"
+            echo "user_set<<EOF"
+            echo "${user_lines}"
             echo "EOF"
-            echo "api_tags_json<<EOF"
-            echo "${api_json}"
+            echo "api_set<<EOF"
+            echo "${api_lines}"
             echo "EOF"
-            echo "web_tags_json<<EOF"
-            echo "${web_json}"
+            echo "web_set<<EOF"
+            echo "${web_lines}"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -121,9 +131,9 @@ jobs:
             *.cache-from=type=local,src=/tmp/.buildx-cache
             *.cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max
             *.labels.org.opencontainers.image.revision=${{ github.sha }}
-            userapi.tags=${{ steps.tags.outputs.user_tags_json }}
-            api.tags=${{ steps.tags.outputs.api_tags_json }}
-            web.tags=${{ steps.tags.outputs.web_tags_json }}
+            ${{ steps.tags.outputs.user_set }}
+            ${{ steps.tags.outputs.api_set }}
+            ${{ steps.tags.outputs.web_set }}
 
       - name: Save build cache
         if: always()
@@ -135,17 +145,16 @@ jobs:
         if: ${{ env.DOCKERHUB_NAMESPACE != '' && env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
         run: |
           set -euo pipefail
-          mirror() { local svc="$1"; local json="$2"; \
-            mapfile -t arr < <(jq -r '.[]' <<<"$json"); \
-            for img in "${arr[@]}"; do
+          mirror() { local svc="$1"; shift; while read -r line; do
+              img="${line#*=}"                          # take rhs after '='
               tag="${img##*:}"
               hub="${DOCKERHUB_NAMESPACE}/${REPO_SLUG}-${svc}:${tag}"
               echo "Mirroring $img -> $hub"
               docker pull "$img"
               docker tag  "$img" "$hub"
               docker push "$hub"
-            done
-          }
-          mirror userapi '${{ steps.tags.outputs.user_tags_json }}'
-          mirror api     '${{ steps.tags.outputs.api_tags_json }}'
-          mirror web     '${{ steps.tags.outputs.web_tags_json }}'
+            done; }
+          # reuse the same lines we fed to bake
+          awk -F= '/^userapi\.tags=/{print}' <<<"${{ steps.tags.outputs.user_set }}" | mirror userapi
+          awk -F= '/^api\.tags=/{print}'     <<<"${{ steps.tags.outputs.api_set }}"  | mirror api
+          awk -F= '/^web\.tags=/{print}'     <<<"${{ steps.tags.outputs.web_set }}"  | mirror web
