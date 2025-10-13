@@ -5,7 +5,7 @@
 variable "REGISTRY_GHCR" { default = "ghcr.io" }
 variable "OWNER"         { default = "hasanjaved-developer" }   // overridden by workflow
 variable "REPO_SLUG"     { default = "centralized-logging" }     // your namespace/group
-variable "DOCKERHUB_NAMESPACE" { default = "" }                  // optional
+variable "DOCKERHUB_NAMESPACE" { default = "hasanjaveddeveloper" }                  // optional
 
 group "default" {
   targets = ["userapi", "api", "web"]

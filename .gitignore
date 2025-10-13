@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# act local secrets
+.secrets
+
+# local developer settings power script file
+run-act.ps1
+
 # User-specific files
 *.rsuser
 *.suo
