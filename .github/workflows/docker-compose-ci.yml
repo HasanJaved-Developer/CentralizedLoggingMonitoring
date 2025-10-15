@@ -119,14 +119,13 @@ jobs:
             ver="${REF#refs/tags/}"     # vX.Y.Z
             short="${ver#v}"            # X.Y.Z
             minor="${short%.*}"         # X.Y
-            user_tags+=( "ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:${ver}" "ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:${minor}" )
-            api_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:${ver}"     "ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:${minor}" )
-            web_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${ver}"     "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${minor}" )
-
-            # Uncomment if you want latest to follow releases instead of master:
-            # user_tags+=( "ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:latest" )
-            # api_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:latest" )
-            # web_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:latest" )
+            # user_tags+=( "ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:${ver}" "ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:${minor}" )
+            # api_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:${ver}"     "ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:${minor}" )
+            # web_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${ver}"     "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${minor}" )
+            user_tags+=( "ghcr.io/${OWNER_LC}/${REPO_SLUG}/userapi:${ver}" )
+            api_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/api:${ver}" )
+            web_tags+=(  "ghcr.io/${OWNER_LC}/${REPO_SLUG}/web:${ver}" )
+            
           fi
 
           # Docker Hub mirrors (optional, only if namespace present)
