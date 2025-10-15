@@ -2,8 +2,20 @@
 
 [![Build](https://github.com/hasanjaved-developer/CentralizedLoggingMonitoring/actions/workflows/dotnet-tests.yml/badge.svg?branch=master)](https://github.com/hasanjaved-developer/CentralizedLoggingMonitoring/actions/workflows/dotnet-tests.yml)
 [![codecov](https://codecov.io/gh/hasanjaved-developer/CentralizedLoggingMonitoring/branch/master/graph/badge.svg)](https://codecov.io/gh/hasanjaved-developer/CentralizedLoggingMonitoring)
+[![Docker Compose CI](https://github.com/hasanjaved-developer/CentralizedLoggingMonitoring/actions/workflows/docker-compose-ci.yml/badge.svg)](https://github.com/<OWNER>/<REPO>/actions/workflows/docker-compose-ci.yml)
 [![License](https://img.shields.io/github/license/hasanjaved-developer/centralizedloggingmonitoring)](LICENSE.txt)
+[![Release](https://img.shields.io/github/v/tag/hasanjaved-developer/CentralizedLoggingMonitoring?label=release&sort=semver)](https://github.com/hasanjaved-developer/CentralizedLoggingMonitoring/tags)
+[![GHCR api](https://img.shields.io/badge/ghcr.io-centralized--logging%2Fapi-blue?logo=github)](https://ghcr.io/hasanjaved-developer/centralized-logging/api)
+[![GHCR userapi](https://img.shields.io/badge/ghcr.io-centralized--logging%2Fuserapi-blue?logo=github)](https://ghcr.io/hasanjaved-developer/centralized-logging/userapi)
+[![GHCR web](https://img.shields.io/badge/ghcr.io-centralized--logging%2Fweb-blue?logo=github)](https://ghcr.io/hasanjaved-developer/centralized-logging/web)
 
+### 🐳 Docker Hub Images
+
+| Service | Pulls | Size | Version |
+|----------|-------|------|----------|
+| **API** | [![Pulls](https://img.shields.io/docker/pulls/hasanjaveddeveloper/centralized-logging-api)](https://hub.docker.com/r/hasanjaveddeveloper/centralized-logging-api) | [![Size](https://img.shields.io/docker/image-size/hasanjaveddeveloper/centralized-logging-api/latest)](https://hub.docker.com/r/hasanjaveddeveloper/centralized-logging-api/tags) | [![Version](https://img.shields.io/docker/v/hasanjaveddeveloper/centralized-logging-api?sort=semver)](https://hub.docker.com/r/hasanjaveddeveloper/centralized-logging-api/tags) |
+| **User API** | [![Pulls](https://img.shields.io/docker/pulls/hasanjaveddeveloper/centralized-logging-userapi)](https://hub.docker.com/r/hasanjaveddeveloper/centralized-logging-userapi) | [![Size](https://img.shields.io/docker/image-size/hasanjaveddeveloper/centralized-logging-userapi/latest)](https://hub.docker.com/r/hasanjaveddeveloper/centralized-logging-userapi/tags) | [![Version](https://img.shields.io/docker/v/hasanjaveddeveloper/centralized-logging-userapi?sort=semver)](https://hub.docker.com/r/hasanjaveddeveloper/centralized-logging-userapi/tags) |
+| **Web (Portal)** | [![Pulls](https://img.shields.io/docker/pulls/hasanjaveddeveloper/centralized-logging-web)](https://hub.docker.com/r/hasanjaveddeveloper/centralized-logging-web) | [![Size](https://img.shields.io/docker/image-size/hasanjaveddeveloper/centralized-logging-web/latest)](https://hub.docker.com/r/hasanjaveddeveloper/centralized-logging-web/tags) | [![Version](https://img.shields.io/docker/v/hasanjaveddeveloper/centralized-logging-web?sort=semver)](https://hub.docker.com/r/hasanjaveddeveloper/centralized-logging-web/tags) |
 
 A centralized error logging and monitoring API built with **.NET 9**, Entity Framework Core, and SQL Server. This project is designed to serve as a foundation for collecting, storing, and managing error logs from multiple applications. **Phase 5,7&8** have also been complated and the pending **Phase 6** will be developed in a new repository. 
 
@@ -95,7 +107,7 @@ A **.NET 9 MVC Web App** that unifies multiple APIs (**User Management and Loggi
 
   - Collects LCOV via Coverlet.
 
-  - Uploads to Codecov (Build + Coverage badges in README).
+  - CI/CD (GitHub Actions – Integration & Delivery), Latest Tag, Codecov, and GHCR/Docker Hub (Pulls & Version) are displayed above.
 
 --- 
 
