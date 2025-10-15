@@ -3,7 +3,7 @@ name: centralized-logging-stack-dhub
 services:
   api:
     # ── Docker Hub image
-    image: docker.io/hasanjaveddeveloper/centralized-logging-api:latest
+    image: docker.io/hasanjaveddeveloper/centralized-logging-api:v2.0.1
     container_name: centralized_logging_api
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
@@ -17,7 +17,7 @@ services:
       - ./CentralizedLoggingApi/logs:/app/logs
 
   userapi:
-    image: docker.io/hasanjaveddeveloper/centralized-logging-userapi:latest
+    image: docker.io/hasanjaveddeveloper/centralized-logging-userapi:v2.0.1
     container_name: user_management_api
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
@@ -31,7 +31,7 @@ services:
       - ./UserManagementApi/logs:/app/logs
 
   web:
-    image: docker.io/hasanjaveddeveloper/centralized-logging-web:latest
+    image: docker.io/hasanjaveddeveloper/centralized-logging-web:v2.0.1
     container_name: api_integration_web
     environment:
       - ASPNETCORE_ENVIRONMENT=Production

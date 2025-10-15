@@ -2,7 +2,7 @@ name: centralized-logging-stack
 
 services:
   api:
-    image: ghcr.io/hasanjaved-developer/centralized-logging/api:latest
+    image: ghcr.io/hasanjaved-developer/centralized-logging/api:v2.0.1
     container_name: centralized_logging_api
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
@@ -17,7 +17,7 @@ services:
       - ./CentralizedLoggingApi/logs:/app/logs
 
   userapi:
-    image: ghcr.io/hasanjaved-developer/centralized-logging/userapi:latest
+    image: ghcr.io/hasanjaved-developer/centralized-logging/userapi:v2.0.1
 
     container_name: user_management_api
     environment:
@@ -34,7 +34,7 @@ services:
 
   web:
 
-    image: ghcr.io/hasanjaved-developer/centralized-logging/web:latest
+    image: ghcr.io/hasanjaved-developer/centralized-logging/web:v2.0.1
     container_name: api_integration_web
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
