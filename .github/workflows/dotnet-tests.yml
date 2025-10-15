@@ -2,12 +2,16 @@ name: .NET Tests (collector)
 
 on:
   push:
-    branches: ["master" ]
-    paths-ignore:
-      - "**/*.md"
-      - "**/*.png"
-      - "**/*.jpg"
-      - "**/*.svg"
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'   # v1.2.3
+# on:
+  # push:
+    # branches: ["master" ]
+    # paths-ignore:
+      # - "**/*.md"
+      # - "**/*.png"
+      # - "**/*.jpg"
+      # - "**/*.svg"
   #pull_request:
     #branches: [ "main", "master" ]
   #workflow_dispatch: {}

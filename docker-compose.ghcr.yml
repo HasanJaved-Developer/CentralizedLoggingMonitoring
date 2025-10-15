@@ -1,0 +1,73 @@
+name: centralized-logging-stack
+
+services:
+  api:
+    image: ghcr.io/hasanjaved-developer/centralized-logging/api:latest
+    container_name: centralized_logging_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      
+    ports:
+      - "5000:8080"   # Map host:container for HTTP
+      - "5001:8081"   # Map host:container for HTTPS (if your app supports it)   
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./CentralizedLoggingApi/logs:/app/logs
+
+  userapi:
+    image: ghcr.io/hasanjaved-developer/centralized-logging/userapi:latest
+
+    container_name: user_management_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      
+    ports:
+      - "6000:8080"   # Host 6000 -> container 8080 (HTTP)
+      # - "6001:8081" # Optional HTTPS mapping if your app listens on 8081
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./UserManagementApi/logs:/app/logs
+
+  web:
+
+    image: ghcr.io/hasanjaved-developer/centralized-logging/web:latest
+    container_name: api_integration_web
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      # Point the web app to APIs by service name (DNS provided by Compose)
+      - Services__CentralizedLogging__BaseUrl=http://api:8080
+      - Services__UserManagement__BaseUrl=http://userapi:8080
+    ports:
+      - "7000:8080"  # browse http://localhost:7000
+    depends_on:
+      api:
+        condition: service_started
+      userapi:
+        condition: service_started
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: centralized_logging_db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Bisp@123
+
+    ports:
+      - "1433:1433"  
+
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P 'Bisp@123' -C -Q \"SELECT 1\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - sql_data:/var/opt/mssql
+
+volumes:
+  sql_data:
